@@ -1,16 +1,31 @@
-import "./globals.css";
 import type { Metadata } from "next";
+import { Inter, Space_Grotesk } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter"
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk"
+});
 
 export const metadata: Metadata = {
-  title: "Prompt → Site Generator",
-  description: "Clone of ORYnth-style generator with cleaner templates",
+  title: "Orynth Clone - AI Website Generator",
+  description: "Generate professional websites from natural language prompts",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900">
-        <div className="container mx-auto px-6 py-10">{children}</div>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
+        {children}
       </body>
     </html>
   );

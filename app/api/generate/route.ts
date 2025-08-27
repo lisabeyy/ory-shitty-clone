@@ -4,89 +4,285 @@ import { GenerationSchema, BasePropsSchema, MemeCoinPropsSchema, AppLandingProps
 import { slugify, nano } from "@/lib/slug";
 import { saveSite } from "@/lib/store";
 
-const SYSTEM = `You are a planner that maps a user prompt to a site template and props.
-
-Output STRICT JSON ONLY with keys: templateId, slug, props.
-Allowed templateId values: landingGradient, memeCoin, bubbleClickerShell, minimalDocs, appLanding, stepWizardBrief, landingTemplate.
-
-Rules:
-- slug: short, URL-safe kebab-case based on the idea; append a short random suffix if needed.
-- props must match the template:
-  - landingGradient: { title, subtitle, bullets[], ctaText }
-  - memeCoin: { title, subtitle, bullets[], ctaText, ticker, supply }
-  - bubbleClickerShell: { title, subtitle }
-  - minimalDocs: { title, subtitle, bullets[] }
-  - appLanding: { title, subtitle, badges[], features[], showcaseTitle, ctaPrimary, ctaSecondary }
-  - stepWizardBrief: { title, subtitle, steps[{title, desc}], highlights[], ctaPrimary, disclaimer }
-  - landingTemplate: { title, subtitle, badges[], features[], showcaseTitle, ctaPrimary, ctaSecondary, colorScheme (optional: cool/degen/cyberpunk/trendy/sport/random) }
-- Keep text concise and non-cringe.
-- If user mentions meme coin, token, ticker => prefer memeCoin.
-- If user mentions game/clicker => bubbleClickerShell.
-- If user asks for docs/tutorial => minimalDocs.
-- If user describes an app/product/dashboard/stream => appLanding.
-- If user asks for a creation flow or steps => stepWizardBrief.
-- If user wants a modern landing page with features/badges => landingTemplate.
-- Otherwise default to landingGradient.`;
+// Allowed templateId values
+const ALLOWED_TEMPLATES = [
+  "memeCoin",
+  "appLanding", 
+  "stepWizard",
+  "minimalDocs",
+  "landingTemplate"
+];
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "Missing ANTHROPIC_API_KEY" }, { status: 500 });
-  }
-  const { prompt } = await req.json();
-  if (!prompt || typeof prompt !== 'string') {
-    return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
-  }
-
-  const msg = await anthropic.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 512,
-    temperature: 0.4,
-    system: SYSTEM,
-    messages: [
-      { role: 'user', content: prompt }
-    ],
-  });
-
-  const text = msg.content?.[0]?.type === 'text' ? msg.content[0].text : '';
-  let parsed: any;
   try {
-    parsed = JSON.parse(text);
-  } catch (e) {
-    return NextResponse.json({ error: 'Claude did not return JSON', raw: text }, { status: 500 });
+    const body = await req.json();
+    const { prompt } = body; // Extract prompt directly from body
+
+    if (!prompt || typeof prompt !== 'string') {
+      return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
+    }
+
+    // Generate AI-based title and icon
+    const titleAndIcon = await generateTitleAndIcon(prompt);
+    
+    // Determine template based on prompt content
+    const templateId = determineTemplate(prompt);
+    
+    // Generate props based on template
+    const props = await generateProps(prompt, templateId, titleAndIcon);
+    
+    // Create slug
+    const slug = slugify(titleAndIcon.title) + "-" + nano();
+    
+    // Save to store
+    const siteData = {
+      templateId,
+      props,
+      prompt,
+      createdAt: new Date().toISOString(),
+      title: titleAndIcon.title,
+      icon: titleAndIcon.icon
+    };
+    
+    await saveSite(slug, siteData);
+    
+    return NextResponse.json({ 
+      slug, 
+      templateId, 
+      props,
+      title: titleAndIcon.title,
+      icon: titleAndIcon.icon
+    });
+    
+  } catch (error) {
+    console.error('Generation error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate website' }, 
+      { status: 500 }
+    );
   }
+}
 
-  const base = GenerationSchema.safeParse(parsed);
-  if (!base.success) {
-    return NextResponse.json({ error: 'Invalid generation shape', issues: base.error.issues }, { status: 422 });
+async function generateTitleAndIcon(prompt: string) {
+  try {
+    const response = await anthropic.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 150,
+      temperature: 0.8,
+      messages: [
+        {
+          role: "user",
+          content: `Based on this website prompt, generate a creative, catchy title (max 6 words) and choose the most appropriate emoji or Lucide React icon name.
+
+Prompt: "${prompt}"
+
+Respond in this exact JSON format:
+{
+  "title": "Creative Website Title",
+  "icon": "🚀" // or "zap" for Lucide React icons
+}
+
+Choose emojis for fun/creative sites, and Lucide React icon names for professional/business sites.`
+        }
+      ]
+    });
+
+    const content = response.content[0];
+    if (content.type === "text") {
+      try {
+        const parsed = JSON.parse(content.text);
+        return {
+          title: parsed.title || "Amazing Website",
+          icon: parsed.icon || "✨"
+        };
+      } catch {
+        // Fallback if JSON parsing fails
+        return {
+          title: "Amazing Website",
+          icon: "✨"
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Title/icon generation failed:', error);
   }
+  
+  // Fallback title and icon
+  return {
+    title: "Amazing Website",
+    icon: "✨"
+  };
+}
 
-  const g = base.data;
+function determineTemplate(prompt: string): string {
+  const lowerPrompt = prompt.toLowerCase();
+  
+  if (lowerPrompt.includes('meme') || lowerPrompt.includes('coin') || lowerPrompt.includes('token')) {
+    return "memeCoin";
+  } else if (lowerPrompt.includes('app') || lowerPrompt.includes('landing') || lowerPrompt.includes('product')) {
+    return "appLanding";
+  } else if (lowerPrompt.includes('step') || lowerPrompt.includes('wizard') || lowerPrompt.includes('guide')) {
+    return "stepWizard";
+  } else if (lowerPrompt.includes('doc') || lowerPrompt.includes('documentation') || lowerPrompt.includes('api')) {
+    return "minimalDocs";
+  } else {
+    return "landingTemplate";
+  }
+}
 
-  let cleanedProps: any = {};
-  switch (g.templateId) {
-    case 'memeCoin':
-      cleanedProps = MemeCoinPropsSchema.parse(g.props);
-      break;
-    case 'appLanding':
-      cleanedProps = AppLandingPropsSchema.parse(g.props);
-      break;
-    case 'stepWizardBrief':
-      cleanedProps = StepWizardPropsSchema.parse(g.props);
-      break;
-    case 'landingTemplate':
-      cleanedProps = LandingTemplatePropsSchema.parse(g.props);
-      break;
-    case 'bubbleClickerShell':
-    case 'minimalDocs':
-    case 'landingGradient':
+async function generateProps(prompt: string, templateId: string, titleAndIcon: { title: string, icon: string }) {
+  try {
+    const response = await anthropic.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 1000,
+      temperature: 0.7,
+      messages: [
+        {
+          role: "user",
+          content: `Generate website props for this prompt: "${prompt}"
+
+Template: ${templateId}
+Title: ${titleAndIcon.title}
+Icon: ${titleAndIcon.icon}
+
+Generate props in this exact JSON format for ${templateId}:
+
+${getTemplateSchema(templateId, titleAndIcon)}
+
+Make it creative, engaging, and relevant to the prompt. Use the provided title and icon.`
+        }
+      ]
+    });
+
+    const content = response.content[0];
+    if (content.type === "text") {
+      try {
+        const parsed = JSON.parse(content.text);
+        return parsed;
+      } catch {
+        console.error('Props parsing failed, using fallback');
+      }
+    }
+  } catch (error) {
+    console.error('Props generation failed:', error);
+  }
+  
+  // Fallback props
+  return getFallbackProps(templateId, titleAndIcon);
+}
+
+function getTemplateSchema(templateId: string, titleAndIcon: { title: string, icon: string }): string {
+  switch (templateId) {
+    case "memeCoin":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "A fun and engaging description",
+        "ticker": "COIN",
+        "description": "Detailed description of the meme coin",
+        "features": ["Feature 1", "Feature 2", "Feature 3"],
+        "socialLinks": ["Twitter", "Telegram", "Discord"]
+      }`;
+    case "appLanding":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "A compelling subtitle",
+        "description": "Detailed description",
+        "badges": ["Badge 1", "Badge 2"],
+        "features": ["Feature 1", "Feature 2", "Feature 3"],
+        "ctaText": "Get Started",
+        "secondaryCta": "Learn More"
+      }`;
+    case "stepWizard":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Step-by-step guide",
+        "steps": [
+          {"title": "Step 1", "description": "Description 1"},
+          {"title": "Step 2", "description": "Description 2"},
+          {"title": "Step 3", "description": "Description 3"}
+        ]
+      }`;
+    case "minimalDocs":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Documentation subtitle",
+        "sections": [
+          {"title": "Section 1", "content": "Content 1"},
+          {"title": "Section 2", "content": "Content 2"}
+        ]
+      }`;
+    case "landingTemplate":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Compelling subtitle",
+        "badges": ["Badge 1", "Badge 2"],
+        "features": ["Feature 1", "Feature 2", "Feature 3"],
+        "showcaseTitle": "Showcase Title",
+        "ctaPrimary": "Primary CTA",
+        "ctaSecondary": "Secondary CTA"
+      }`;
     default:
-      cleanedProps = BasePropsSchema.parse(g.props);
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Default subtitle"
+      }`;
   }
+}
 
-  const baseSlug = slugify(g.slug || (cleanedProps?.title ?? 'site'));
-  const slug = baseSlug.length < 3 ? `${baseSlug || 'site'}-${nano()}` : `${baseSlug}-${nano(4)}`;
-
-  await saveSite(slug, { templateId: g.templateId, props: cleanedProps });
-
-  return NextResponse.json({ slug });
+function getFallbackProps(templateId: string, titleAndIcon: { title: string, icon: string }) {
+  switch (templateId) {
+    case "memeCoin":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "The next big thing in crypto",
+        ticker: "COIN",
+        description: "A revolutionary meme coin that's taking the world by storm",
+        features: ["Community Driven", "Transparent", "Innovative"],
+        socialLinks: ["Twitter", "Telegram", "Discord"]
+      };
+    case "appLanding":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Revolutionary app that changes everything",
+        description: "Experience the future with our cutting-edge application",
+        badges: ["New", "Trending"],
+        features: ["Fast", "Secure", "User-friendly"],
+        ctaText: "Get Started",
+        secondaryCta: "Learn More"
+      };
+    case "stepWizard":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Follow these simple steps to success",
+        steps: [
+          {title: "Step 1", description: "Get started with the basics"},
+          {title: "Step 2", description: "Configure your settings"},
+          {title: "Step 3", description: "Launch and enjoy"}
+        ]
+      };
+    case "minimalDocs":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Complete documentation and guides",
+        sections: [
+          {title: "Getting Started", content: "Learn the basics quickly"},
+          {title: "Advanced Features", content: "Master advanced functionality"}
+        ]
+      };
+    case "landingTemplate":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Amazing product that solves real problems",
+        badges: ["Featured", "Popular"],
+        features: ["Innovative", "Reliable", "Fast"],
+        showcaseTitle: "Why Choose Us",
+        ctaPrimary: "Get Started",
+        ctaSecondary: "Learn More"
+      };
+    default:
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Amazing website created just for you"
+      };
+  }
 }
