@@ -1,32 +1,20 @@
 import React from "react";
+import type { LandingTemplateProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
 
-interface LandingTemplateProps {
-  title: string;
-  subtitle: string;
-  badges: string[];
-  features: string[];
-  showcaseTitle: string;
-  ctaPrimary: string;
-  ctaSecondary: string;
-  logo?: string;
-  backgroundImage?: string;
-  colorScheme?: 'cool' | 'degen' | 'cyberpunk' | 'trendy' | 'sport' | 'random';
-}
-
-export default function LandingTemplate({ 
-  title, 
-  subtitle, 
-  badges, 
-  features, 
-  showcaseTitle, 
-  ctaPrimary, 
+export default function LandingTemplate({
+  title,
+  subtitle,
+  badges,
+  features,
+  showcaseTitle,
+  ctaPrimary,
   ctaSecondary,
   logo,
   backgroundImage,
   colorScheme = 'random'
 }: LandingTemplateProps) {
-  
+
   // Color schemes
   const schemes = {
     cool: {
@@ -77,7 +65,7 @@ export default function LandingTemplate({
   };
 
   // Get color scheme (random if specified or default to trendy)
-  const currentScheme = colorScheme === 'random' 
+  const currentScheme = colorScheme === 'random'
     ? Object.values(schemes)[Math.floor(Math.random() * Object.values(schemes).length)]
     : schemes[colorScheme] || schemes.trendy;
 
@@ -89,7 +77,7 @@ export default function LandingTemplate({
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5" />
       <div className={`absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r ${colors.card} rounded-full blur-3xl animate-pulse`} />
       <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r ${colors.card} rounded-full blur-3xl animate-pulse`} />
-      
+
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
@@ -107,7 +95,7 @@ export default function LandingTemplate({
       </div>
 
       <WebsiteHeader title={title} icon="🎯" />
-      
+
       <div className="relative z-10">
         {/* Hero Section */}
         <section className="pt-24 pb-16 px-6">
@@ -120,7 +108,7 @@ export default function LandingTemplate({
               <p className="text-2xl md:text-3xl text-white/80 mb-8 max-w-4xl mx-auto leading-relaxed">
                 {subtitle}
               </p>
-              
+
               {/* Badges */}
               <div className="flex flex-wrap justify-center gap-3 mb-8">
                 {badges.map((badge, index) => (
