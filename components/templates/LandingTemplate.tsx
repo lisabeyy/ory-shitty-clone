@@ -12,7 +12,8 @@ export default function LandingTemplate({
   ctaSecondary,
   logo,
   backgroundImage,
-  colorScheme = 'random'
+  colorScheme = 'random',
+  icon
 }: LandingTemplateProps) {
 
   // Color schemes
@@ -94,7 +95,7 @@ export default function LandingTemplate({
         ))}
       </div>
 
-      <WebsiteHeader title={title} icon="🎯" />
+      <WebsiteHeader title={title} icon={icon} />
 
       <div className="relative z-10">
         {/* Hero Section */}
@@ -121,6 +122,39 @@ export default function LandingTemplate({
                 ))}
               </div>
 
+              {/* Features Grid */}
+              <div className="mb-16">
+                <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                  {showcaseTitle}
+                </h2>
+                
+                {/* Randomize between 2 or 3 columns */}
+                {(() => {
+                  const useThreeColumns = Math.random() > 0.5;
+                  const gridCols = useThreeColumns ? 'md:grid-cols-3' : 'md:grid-cols-2';
+                  const maxFeatures = useThreeColumns ? 6 : 4; // Ensure even numbers
+                  
+                  return (
+                    <div className={`grid ${gridCols} gap-8`}>
+                      {features.slice(0, maxFeatures).map((feature, index) => (
+                        <div key={index} className="group relative">
+                          <div className={`absolute inset-0 ${colors.card} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                          <div className={`relative rounded-2xl border ${colors.border} p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40`}>
+                            <div className={`w-16 h-16 bg-gradient-to-r ${colors.accent} rounded-2xl flex items-center justify-center mb-6`}>
+                              <span className="text-white text-2xl">✨</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-4">{feature}</h3>
+                            <p className="text-white/70 text-lg leading-relaxed">
+                              Revolutionary feature that sets {title} apart from the competition.
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
                 <button className={`px-8 py-4 bg-gradient-to-r ${colors.button} text-white font-bold text-xl rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-xl`}>
@@ -130,29 +164,6 @@ export default function LandingTemplate({
                   {ctaSecondary}
                 </button>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-16 px-6">
-          <div className="max-w-6xl mx-auto">
-            <h2 className={`text-4xl font-bold text-center mb-12 bg-gradient-to-r ${colors.primary} bg-clip-text text-transparent`}>
-              {showcaseTitle}
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
-                >
-                  <div className="text-4xl mb-4">✨</div>
-                  <h3 className="text-xl font-bold text-white mb-4">{feature}</h3>
-                  <p className="text-white/70">
-                    Revolutionary feature that sets {title} apart from the competition.
-                  </p>
-                </div>
-              ))}
             </div>
           </div>
         </section>

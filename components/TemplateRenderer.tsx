@@ -6,6 +6,9 @@ import MinimalDocs from "./templates/MinimalDocs";
 import LandingGradient from "./templates/LandingGradient";
 import BubbleClickerShell from "./templates/BubbleClickerShell";
 import LandingTemplate from "./templates/LandingTemplate";
+import CardGrid from "./templates/CardGrid";
+import Timeline from "./templates/Timeline";
+import Magazine from "./templates/Magazine";
 
 interface TemplateRendererProps {
   templateId: string;
@@ -32,6 +35,12 @@ export default function TemplateRenderer({ templateId, props }: TemplateRenderer
       return <BubbleClickerShell {...props} title={title} icon={icon} />;
     case "landingTemplate":
       return <LandingTemplate {...props} title={title} icon={icon} />;
+    case "cardGrid":
+      return <CardGrid {...props} title={title} icon={icon} />;
+    case "timeline":
+      return <Timeline {...props} title={title} icon={icon} />;
+    case "magazine":
+      return <Magazine {...props} title={title} icon={icon} />;
     default:
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white flex items-center justify-center">

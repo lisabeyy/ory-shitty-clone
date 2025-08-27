@@ -104,7 +104,9 @@ Guidelines:
 Examples:
 - School website: "Excellence Academy" + 🎓
 - Pizza restaurant: "Slice & Dice Pizza" + 🍕
-- Tech startup: "InnovateTech Solutions" + 💡`
+- Tech startup: "InnovateTech Solutions" + 💡
+
+CRITICAL: Respond with ONLY the JSON object. Do not add any explanatory text before or after the JSON.`
         }
       ]
     });
@@ -113,12 +115,19 @@ Examples:
     if (content.type === "text") {
       console.log('📝 Claude title/icon response:', content.text);
       try {
-        const parsed = JSON.parse(content.text);
-        console.log('✅ Successfully parsed title/icon:', parsed);
-        return {
-          title: parsed.title || "Amazing Website",
-          icon: parsed.icon || "✨"
-        };
+        // Extract JSON from the response (remove any explanatory text)
+        const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const jsonString = jsonMatch[0];
+          const parsed = JSON.parse(jsonString);
+          console.log('✅ Successfully parsed title/icon:', parsed);
+          return {
+            title: parsed.title || "Amazing Website",
+            icon: parsed.icon || "✨"
+          };
+        } else {
+          console.error('❌ No JSON found in title/icon response');
+        }
       } catch (parseError) {
         console.error('❌ Title/icon parsing failed:', parseError);
         console.error('Raw response:', content.text);
@@ -143,6 +152,13 @@ Examples:
 function determineTemplate(prompt: string): string {
   const lowerPrompt = prompt.toLowerCase();
   
+  // Sometimes randomly select a template for variety (20% chance)
+  if (Math.random() < 0.2) {
+    const allTemplates = ["memeCoin", "appLanding", "stepWizard", "minimalDocs", "landingTemplate", "cardGrid", "timeline", "magazine"];
+    return allTemplates[Math.floor(Math.random() * allTemplates.length)];
+  }
+  
+  // Otherwise, use logic-based selection
   if (lowerPrompt.includes('meme') || lowerPrompt.includes('coin') || lowerPrompt.includes('token')) {
     return "memeCoin";
   } else if (lowerPrompt.includes('app') || lowerPrompt.includes('landing') || lowerPrompt.includes('product')) {
@@ -152,7 +168,9 @@ function determineTemplate(prompt: string): string {
   } else if (lowerPrompt.includes('doc') || lowerPrompt.includes('documentation') || lowerPrompt.includes('api')) {
     return "minimalDocs";
   } else {
-    return "landingTemplate";
+    // Randomly select from modern templates for variety
+    const modernTemplates = ["landingTemplate", "cardGrid", "timeline", "magazine"];
+    return modernTemplates[Math.floor(Math.random() * modernTemplates.length)];
   }
 }
 
@@ -185,7 +203,9 @@ Guidelines:
 - Use appropriate CTA text for the business type
 - Make everything feel authentic and professional
 
-Example: If someone asks for a "pizza restaurant website", don't give generic "Feature 1, Feature 2" - give them "Fresh Ingredients", "Fast Delivery", "Family Recipes", etc.`
+Example: If someone asks for a "pizza restaurant website", don't give generic "Feature 1, Feature 2" - give them "Fresh Ingredients", "Fast Delivery", "Family Recipes", etc.
+
+CRITICAL: Respond with ONLY the JSON object. Do not add any explanatory text before or after the JSON.`
         }
       ]
     });
@@ -194,9 +214,16 @@ Example: If someone asks for a "pizza restaurant website", don't give generic "F
     if (content.type === "text") {
       console.log('📝 Claude response:', content.text);
       try {
-        const parsed = JSON.parse(content.text);
-        console.log('✅ Successfully parsed props:', parsed);
-        return parsed;
+        // Extract JSON from the response (remove any explanatory text)
+        const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const jsonString = jsonMatch[0];
+          const parsed = JSON.parse(jsonString);
+          console.log('✅ Successfully parsed props:', parsed);
+          return parsed;
+        } else {
+          console.error('❌ No JSON found in response');
+        }
       } catch (parseError) {
         console.error('❌ Props parsing failed:', parseError);
         console.error('Raw response:', content.text);
@@ -272,59 +299,85 @@ function getTemplateSchema(templateId: string, titleAndIcon: { title: string, ic
 }
 
 function getFallbackProps(templateId: string, titleAndIcon: { title: string, icon: string }) {
+  // Add some randomness to fallback props
+  const randomFeatures = [
+    ["Innovative", "Reliable", "Fast", "Secure"],
+    ["Professional", "Creative", "Efficient", "Modern"],
+    ["Quality", "Trusted", "Advanced", "User-friendly"],
+    ["Cutting-edge", "Premium", "Scalable", "Intuitive"]
+  ];
+  
+  const randomBadges = [
+    ["Featured", "Popular", "Trending"],
+    ["New", "Hot", "Recommended"],
+    ["Premium", "Exclusive", "Limited"],
+    ["Verified", "Trusted", "Award-winning"]
+  ];
+  
+  const randomSubtitles = [
+    "Revolutionary solution that transforms your experience",
+    "Cutting-edge innovation that sets new standards",
+    "Professional service that exceeds expectations",
+    "Creative approach that delivers exceptional results"
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * 4);
+  
   switch (templateId) {
     case "memeCoin":
       return {
         title: titleAndIcon.title,
         subtitle: "The next big thing in crypto",
+        bullets: ["Community Driven", "Transparent", "Innovative", "High Potential"],
+        ctaText: "Get Started",
         ticker: "COIN",
-        description: "A revolutionary meme coin that's taking the world by storm",
-        features: ["Community Driven", "Transparent", "Innovative"],
-        socialLinks: ["Twitter", "Telegram", "Discord"]
+        supply: "1,000,000,000"
       };
     case "appLanding":
       return {
         title: titleAndIcon.title,
-        subtitle: "Revolutionary app that changes everything",
-        description: "Experience the future with our cutting-edge application",
-        badges: ["New", "Trending"],
-        features: ["Fast", "Secure", "User-friendly"],
-        ctaText: "Get Started",
-        secondaryCta: "Learn More"
+        subtitle: randomSubtitles[randomIndex],
+        badges: randomBadges[randomIndex],
+        features: randomFeatures[randomIndex],
+        showcaseTitle: "Key Features",
+        ctaPrimary: "Get Started",
+        ctaSecondary: "Learn More"
       };
     case "stepWizard":
       return {
         title: titleAndIcon.title,
         subtitle: "Follow these simple steps to success",
         steps: [
-          {title: "Step 1", description: "Get started with the basics"},
-          {title: "Step 2", description: "Configure your settings"},
-          {title: "Step 3", description: "Launch and enjoy"}
-        ]
+          {title: "Step 1", desc: "Get started with the basics"},
+          {title: "Step 2", desc: "Configure your settings"},
+          {title: "Step 3", desc: "Launch and enjoy"}
+        ],
+        highlights: ["Easy to follow", "Proven method", "Quick results"],
+        ctaPrimary: "Get Started",
+        disclaimer: "Results may vary based on individual circumstances"
       };
     case "minimalDocs":
       return {
         title: titleAndIcon.title,
         subtitle: "Complete documentation and guides",
-        sections: [
-          {title: "Getting Started", content: "Learn the basics quickly"},
-          {title: "Advanced Features", content: "Master advanced functionality"}
-        ]
+        bullets: ["Getting Started", "Advanced Features", "Best Practices", "Troubleshooting"],
+        ctaText: "Get Started"
       };
     case "landingTemplate":
       return {
         title: titleAndIcon.title,
-        subtitle: "Amazing product that solves real problems",
-        badges: ["Featured", "Popular"],
-        features: ["Innovative", "Reliable", "Fast"],
+        subtitle: randomSubtitles[randomIndex],
+        badges: randomBadges[randomIndex],
+        features: randomFeatures[randomIndex],
         showcaseTitle: "Why Choose Us",
         ctaPrimary: "Get Started",
-        ctaSecondary: "Learn More"
+        ctaSecondary: "Learn More",
+        colorScheme: "random"
       };
     default:
       return {
         title: titleAndIcon.title,
-        subtitle: "Amazing website created just for you"
+        subtitle: randomSubtitles[randomIndex]
       };
   }
 }

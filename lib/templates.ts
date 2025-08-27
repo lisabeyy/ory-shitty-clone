@@ -7,7 +7,10 @@ export const TemplateIdSchema = z.enum([
   "minimalDocs",
   "appLanding",
   "stepWizardBrief",
-  "landingTemplate"
+  "landingTemplate",
+  "cardGrid",
+  "timeline",
+  "magazine"
 ]);
 export type TemplateId = z.infer<typeof TemplateIdSchema>;
 
@@ -16,12 +19,14 @@ export const BasePropsSchema = z.object({
   subtitle: z.string().default(""),
   bullets: z.array(z.string()).default([]),
   ctaText: z.string().default("Get Started"),
+  icon: z.string().default("✨"),
 });
 export type BaseProps = z.infer<typeof BasePropsSchema>;
 
 export const MemeCoinPropsSchema = BasePropsSchema.extend({
   ticker: z.string().default("$MEME"),
   supply: z.string().default("1,000,000,000"),
+  icon: z.string().default("🚀"),
 });
 export type MemeCoinProps = z.infer<typeof MemeCoinPropsSchema>;
 
@@ -33,6 +38,7 @@ export const AppLandingPropsSchema = z.object({
   showcaseTitle: z.string().default("Preview"),
   ctaPrimary: z.string().default("Open App"),
   ctaSecondary: z.string().default("Learn More"),
+  icon: z.string().default("⚡"),
 });
 export type AppLandingProps = z.infer<typeof AppLandingPropsSchema>;
 
@@ -43,6 +49,7 @@ export const StepWizardPropsSchema = z.object({
   highlights: z.array(z.string()).default([]),
   ctaPrimary: z.string().default("Get Started"),
   disclaimer: z.string().default(""),
+  icon: z.string().default("📋"),
 });
 export type StepWizardProps = z.infer<typeof StepWizardPropsSchema>;
 
@@ -58,6 +65,7 @@ export const LandingTemplatePropsSchema = z.object({
   backgroundImage: z.string().optional(),
   colorScheme: z.enum(['cool', 'degen', 'cyberpunk', 'trendy', 'sport', 'random']).default('random'),
   accentColor: z.string().optional(),
+  icon: z.string().default("🎯"),
 });
 export type LandingTemplateProps = z.infer<typeof LandingTemplatePropsSchema>;
 

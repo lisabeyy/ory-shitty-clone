@@ -2,15 +2,25 @@ import React from "react";
 import type { MemeCoinProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
 
-export default function MemeCoin({ title, subtitle, bullets, ctaText, ticker, supply }: MemeCoinProps) {
+export default function MemeCoin({ title, subtitle, bullets, ctaText, ticker, supply, icon }: MemeCoinProps) {
+  // Add some randomness to colors
+  const colorSchemes = [
+    { bg: 'from-zinc-950 via-purple-950 to-zinc-900', primary: 'from-white via-emerald-100 to-emerald-400', accent: 'from-emerald-500 to-blue-500', glow: 'from-purple-500/20 to-pink-500/20' },
+    { bg: 'from-slate-950 via-indigo-950 to-slate-900', primary: 'from-white via-indigo-100 to-indigo-400', accent: 'from-indigo-500 to-purple-500', glow: 'from-indigo-500/20 to-purple-500/20' },
+    { bg: 'from-zinc-950 via-emerald-950 to-zinc-900', primary: 'from-white via-emerald-100 to-emerald-400', accent: 'from-emerald-500 to-teal-500', glow: 'from-emerald-500/20 to-teal-500/20' },
+    { bg: 'from-slate-950 via-pink-950 to-slate-900', primary: 'from-white via-pink-100 to-pink-400', accent: 'from-pink-500 to-rose-500', glow: 'from-pink-500/20 to-rose-500/20' }
+  ];
+  
+  const randomColors = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-purple-950 to-zinc-900 text-white relative overflow-hidden">
+    <div className={`min-h-screen bg-gradient-to-br ${randomColors.bg} text-white relative overflow-hidden`}>
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
+      <div className={`absolute top-1/4 left-1/4 w-96 h-96 ${randomColors.glow} rounded-full blur-3xl`} />
+      <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 ${randomColors.glow} rounded-full blur-3xl`} />
 
-      <WebsiteHeader title={title} icon="🚀" />
+      <WebsiteHeader title={title} icon={icon} />
 
       <div className="container mx-auto px-6 pt-32 pb-20 relative z-10">
         {/* Hero Section */}
@@ -20,7 +30,7 @@ export default function MemeCoin({ title, subtitle, bullets, ctaText, ticker, su
             <span className="text-emerald-400 text-sm font-medium">Live on Solana</span>
           </div>
 
-          <h1 className="text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-emerald-100 to-emerald-400 bg-clip-text text-transparent">
+          <h1 className={`text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r ${randomColors.primary} bg-clip-text text-transparent`}>
             {title} <span className="text-emerald-400">{ticker}</span>
           </h1>
 
@@ -29,17 +39,28 @@ export default function MemeCoin({ title, subtitle, bullets, ctaText, ticker, su
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {bullets?.map((b, i) => (
-            <div key={i} className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4">
-                  <span className="text-white font-bold text-lg">{i + 1}</span>
-                </div>
-                <p className="text-white/90 text-lg leading-relaxed">{b}</p>
+          {/* Randomize between 2 or 3 columns */}
+          {(() => {
+            const useThreeColumns = Math.random() > 0.5;
+            const gridCols = useThreeColumns ? 'md:grid-cols-3' : 'md:grid-cols-2';
+            const maxBullets = useThreeColumns ? 6 : 4; // Ensure even numbers
+            
+            return (
+              <div className={`grid ${gridCols} gap-8`}>
+                {bullets?.slice(0, maxBullets).map((b, i) => (
+                  <div key={i} className="group relative">
+                    <div className={`absolute inset-0 ${randomColors.glow} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                    <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4">
+                        <span className="text-white font-bold text-lg">{i + 1}</span>
+                      </div>
+                      <p className="text-white/90 text-lg leading-relaxed">{b}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
+            );
+          })()}
         </div>
 
         {/* Token Info & CTA */}
@@ -49,13 +70,13 @@ export default function MemeCoin({ title, subtitle, bullets, ctaText, ticker, su
             <div className="relative rounded-2xl border border-emerald-500/30 p-8 bg-emerald-500/10 backdrop-blur hover:bg-emerald-500/20 transition-all duration-300">
               <div className="text-center">
                 <div className="text-emerald-400 text-sm font-medium mb-2">Total Supply</div>
-                <div className="text-4xl font-black text-white">{supply}</div>
+                <div className="text-4xl font-bold text-white">{supply}</div>
                 <div className="text-emerald-300 text-sm mt-2">Tokens Available</div>
               </div>
             </div>
           </div>
 
-          <button className="group relative px-8 py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/25">
+          <button className={`group relative px-8 py-4 rounded-2xl font-bold text-lg bg-gradient-to-r ${randomColors.accent} hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/25`}>
             <span className="relative z-10">{ctaText}</span>
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
           </button>
