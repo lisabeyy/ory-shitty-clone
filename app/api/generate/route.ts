@@ -22,14 +22,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
     }
 
+    console.log('🚀 Starting generation for prompt:', prompt);
+
     // Generate AI-based title and icon
     const titleAndIcon = await generateTitleAndIcon(prompt);
+    console.log('✅ Generated title and icon:', titleAndIcon);
     
     // Determine template based on prompt content
     const templateId = determineTemplate(prompt);
+    console.log('🎯 Selected template:', templateId);
     
     // Generate props based on template
     const props = await generateProps(prompt, templateId, titleAndIcon);
+    console.log('⚙️ Generated props:', props);
     
     // Create slug
     const slug = slugify(titleAndIcon.title) + "-" + nano();
@@ -45,6 +50,7 @@ export async function POST(req: NextRequest) {
     };
     
     await saveSite(slug, siteData);
+    console.log('💾 Saved site with slug:', slug);
     
     return NextResponse.json({ 
       slug, 
@@ -55,7 +61,7 @@ export async function POST(req: NextRequest) {
     });
     
   } catch (error) {
-    console.error('Generation error:', error);
+    console.error('❌ Generation error:', error);
     return NextResponse.json(
       { error: 'Failed to generate website' }, 
       { status: 500 }
@@ -65,38 +71,57 @@ export async function POST(req: NextRequest) {
 
 async function generateTitleAndIcon(prompt: string) {
   try {
+    console.log('🎨 Sending prompt to Claude for title/icon generation...');
     const response = await anthropic.messages.create({
       model: CLAUDE_MODEL,
-      max_tokens: 150,
+      max_tokens: 200,
       temperature: 0.8,
       messages: [
         {
           role: "user",
-          content: `Based on this website prompt, generate a creative, catchy title (max 6 words) and choose the most appropriate emoji or Lucide React icon name.
+          content: `You are an expert at creating catchy, relevant website titles and choosing appropriate icons.
+
+Based on this website prompt, generate a creative, catchy title (max 6 words) and choose the most appropriate emoji.
 
 Prompt: "${prompt}"
+
+IMPORTANT: The title must be highly relevant to the prompt. If they ask for a school website, create a school-appropriate title. If they ask for a restaurant, create a restaurant-appropriate title.
 
 Respond in this exact JSON format:
 {
   "title": "Creative Website Title",
-  "icon": "🚀" // or "zap" for Lucide React icons
+  "icon": "🚀"
 }
 
-Choose emojis for fun/creative sites, and Lucide React icon names for professional/business sites.`
+Guidelines:
+- Make the title specific to the business/website type
+- Choose an emoji that represents the business/website type
+- For schools: use education-related emojis (🎓, 📚, 🏫)
+- For restaurants: use food-related emojis (🍕, 🍔, 🍜)
+- For businesses: use business-related emojis (💼, 🏢, 💡)
+- For creative projects: use creative emojis (🎨, ✨, 🚀)
+
+Examples:
+- School website: "Excellence Academy" + 🎓
+- Pizza restaurant: "Slice & Dice Pizza" + 🍕
+- Tech startup: "InnovateTech Solutions" + 💡`
         }
       ]
     });
 
     const content = response.content[0];
     if (content.type === "text") {
+      console.log('📝 Claude title/icon response:', content.text);
       try {
         const parsed = JSON.parse(content.text);
+        console.log('✅ Successfully parsed title/icon:', parsed);
         return {
           title: parsed.title || "Amazing Website",
           icon: parsed.icon || "✨"
         };
-      } catch {
-        // Fallback if JSON parsing fails
+      } catch (parseError) {
+        console.error('❌ Title/icon parsing failed:', parseError);
+        console.error('Raw response:', content.text);
         return {
           title: "Amazing Website",
           icon: "✨"
@@ -104,9 +129,10 @@ Choose emojis for fun/creative sites, and Lucide React icon names for profession
       }
     }
   } catch (error) {
-    console.error('Title/icon generation failed:', error);
+    console.error('❌ Title/icon generation failed:', error);
   }
   
+  console.log('🔄 Using fallback title/icon');
   // Fallback title and icon
   return {
     title: "Amazing Website",
@@ -132,41 +158,55 @@ function determineTemplate(prompt: string): string {
 
 async function generateProps(prompt: string, templateId: string, titleAndIcon: { title: string, icon: string }) {
   try {
+    console.log('🤖 Sending prompt to Claude for props generation...');
     const response = await anthropic.messages.create({
       model: CLAUDE_MODEL,
       max_tokens: 1000,
-      temperature: 0.7,
+      temperature: 0.8,
       messages: [
         {
           role: "user",
-          content: `Generate website props for this prompt: "${prompt}"
+          content: `You are an expert website content creator. Generate engaging, relevant content for this website prompt: "${prompt}"
 
 Template: ${templateId}
 Title: ${titleAndIcon.title}
 Icon: ${titleAndIcon.icon}
 
+IMPORTANT: The content must be highly relevant to the user's prompt. If they ask for a school website, create school-specific content. If they ask for a restaurant, create restaurant-specific content. Make it feel like a real, professional website.
+
 Generate props in this exact JSON format for ${templateId}:
 
 ${getTemplateSchema(templateId, titleAndIcon)}
 
-Make it creative, engaging, and relevant to the prompt. Use the provided title and icon.`
+Guidelines:
+- Make the subtitle specific and relevant to the prompt
+- Create realistic badges that make sense for the business/website type
+- Generate features that are actually useful for the specific use case
+- Use appropriate CTA text for the business type
+- Make everything feel authentic and professional
+
+Example: If someone asks for a "pizza restaurant website", don't give generic "Feature 1, Feature 2" - give them "Fresh Ingredients", "Fast Delivery", "Family Recipes", etc.`
         }
       ]
     });
 
     const content = response.content[0];
     if (content.type === "text") {
+      console.log('📝 Claude response:', content.text);
       try {
         const parsed = JSON.parse(content.text);
+        console.log('✅ Successfully parsed props:', parsed);
         return parsed;
-      } catch {
-        console.error('Props parsing failed, using fallback');
+      } catch (parseError) {
+        console.error('❌ Props parsing failed:', parseError);
+        console.error('Raw response:', content.text);
       }
     }
   } catch (error) {
-    console.error('Props generation failed:', error);
+    console.error('❌ Props generation failed:', error);
   }
   
+  console.log('🔄 Using fallback props for template:', templateId);
   // Fallback props
   return getFallbackProps(templateId, titleAndIcon);
 }
@@ -176,50 +216,52 @@ function getTemplateSchema(templateId: string, titleAndIcon: { title: string, ic
     case "memeCoin":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "A fun and engaging description",
+        "subtitle": "A compelling subtitle for the meme coin",
+        "bullets": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+        "ctaText": "Get Started",
         "ticker": "COIN",
-        "description": "Detailed description of the meme coin",
-        "features": ["Feature 1", "Feature 2", "Feature 3"],
-        "socialLinks": ["Twitter", "Telegram", "Discord"]
+        "supply": "1,000,000,000"
       }`;
     case "appLanding":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "A compelling subtitle",
-        "description": "Detailed description",
-        "badges": ["Badge 1", "Badge 2"],
-        "features": ["Feature 1", "Feature 2", "Feature 3"],
-        "ctaText": "Get Started",
-        "secondaryCta": "Learn More"
+        "subtitle": "A compelling subtitle that describes the app",
+        "badges": ["Badge 1", "Badge 2", "Badge 3"],
+        "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+        "showcaseTitle": "Key Features",
+        "ctaPrimary": "Get Started",
+        "ctaSecondary": "Learn More"
       }`;
     case "stepWizard":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "Step-by-step guide",
+        "subtitle": "A clear subtitle explaining the step-by-step process",
         "steps": [
-          {"title": "Step 1", "description": "Description 1"},
-          {"title": "Step 2", "description": "Description 2"},
-          {"title": "Step 3", "description": "Description 3"}
-        ]
+          {"title": "Step 1", "desc": "Description of step 1"},
+          {"title": "Step 2", "desc": "Description of step 2"},
+          {"title": "Step 3", "desc": "Description of step 3"}
+        ],
+        "highlights": ["Highlight 1", "Highlight 2", "Highlight 3"],
+        "ctaPrimary": "Get Started",
+        "disclaimer": "Important information about the process"
       }`;
     case "minimalDocs":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "Documentation subtitle",
-        "sections": [
-          {"title": "Section 1", "content": "Content 1"},
-          {"title": "Section 2", "content": "Content 2"}
-        ]
+        "subtitle": "Documentation subtitle explaining the content",
+        "bullets": ["Key Point 1", "Key Point 2", "Key Point 3", "Key Point 4"],
+        "ctaText": "Get Started"
       }`;
     case "landingTemplate":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "Compelling subtitle",
-        "badges": ["Badge 1", "Badge 2"],
-        "features": ["Feature 1", "Feature 2", "Feature 3"],
-        "showcaseTitle": "Showcase Title",
-        "ctaPrimary": "Primary CTA",
-        "ctaSecondary": "Secondary CTA"
+        "subtitle": "A compelling subtitle that describes the product/service",
+        "badges": ["Badge 1", "Badge 2", "Badge 3"],
+        "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
+        "showcaseTitle": "Why Choose Us",
+        "ctaPrimary": "Get Started",
+        "ctaSecondary": "Learn More",
+        "colorScheme": "trendy"
       }`;
     default:
       return `{
