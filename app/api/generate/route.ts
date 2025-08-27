@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
-import { GenerationSchema, BasePropsSchema, MemeCoinPropsSchema, AppLandingPropsSchema, StepWizardPropsSchema } from "@/lib/templates";
+import { GenerationSchema, BasePropsSchema, MemeCoinPropsSchema, AppLandingPropsSchema, StepWizardPropsSchema, LandingTemplatePropsSchema } from "@/lib/templates";
 import { slugify, nano } from "@/lib/slug";
 import { saveSite } from "@/lib/store";
 
 const SYSTEM = `You are a planner that maps a user prompt to a site template and props.
 
 Output STRICT JSON ONLY with keys: templateId, slug, props.
-Allowed templateId values: landingGradient, memeCoin, bubbleClickerShell, minimalDocs, appLanding, stepWizardBrief.
+Allowed templateId values: landingGradient, memeCoin, bubbleClickerShell, minimalDocs, appLanding, stepWizardBrief, landingTemplate.
 
 Rules:
 - slug: short, URL-safe kebab-case based on the idea; append a short random suffix if needed.
@@ -18,12 +18,14 @@ Rules:
   - minimalDocs: { title, subtitle, bullets[] }
   - appLanding: { title, subtitle, badges[], features[], showcaseTitle, ctaPrimary, ctaSecondary }
   - stepWizardBrief: { title, subtitle, steps[{title, desc}], highlights[], ctaPrimary, disclaimer }
+  - landingTemplate: { title, subtitle, badges[], features[], showcaseTitle, ctaPrimary, ctaSecondary, colorScheme (optional: cool/degen/cyberpunk/trendy/sport/random) }
 - Keep text concise and non-cringe.
 - If user mentions meme coin, token, ticker => prefer memeCoin.
 - If user mentions game/clicker => bubbleClickerShell.
 - If user asks for docs/tutorial => minimalDocs.
 - If user describes an app/product/dashboard/stream => appLanding.
 - If user asks for a creation flow or steps => stepWizardBrief.
+- If user wants a modern landing page with features/badges => landingTemplate.
 - Otherwise default to landingGradient.`;
 
 export async function POST(req: NextRequest) {
@@ -70,6 +72,9 @@ export async function POST(req: NextRequest) {
       break;
     case 'stepWizardBrief':
       cleanedProps = StepWizardPropsSchema.parse(g.props);
+      break;
+    case 'landingTemplate':
+      cleanedProps = LandingTemplatePropsSchema.parse(g.props);
       break;
     case 'bubbleClickerShell':
     case 'minimalDocs':

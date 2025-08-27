@@ -78,7 +78,7 @@ export default function MinimalDocs({ title, subtitle, bullets }: BaseProps) {
         {/* Footer */}
         <footer className="text-center mt-16">
           <p className="text-slate-400 text-sm bg-white/5 backdrop-blur rounded-xl px-6 py-3 inline-block border border-white/10">
-            📚 Documentation template — Powered by Orynth
+            📚 Documentation template — Powered by @lisabeyy
           </p>
         </footer>
       </div>

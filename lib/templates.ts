@@ -7,6 +7,7 @@ export const TemplateIdSchema = z.enum([
   "minimalDocs",
   "appLanding",
   "stepWizardBrief",
+  "landingTemplate"
 ]);
 export type TemplateId = z.infer<typeof TemplateIdSchema>;
 
@@ -45,7 +46,22 @@ export const StepWizardPropsSchema = z.object({
 });
 export type StepWizardProps = z.infer<typeof StepWizardPropsSchema>;
 
-export type AnyProps = BaseProps | MemeCoinProps | AppLandingProps | StepWizardProps;
+export const LandingTemplatePropsSchema = z.object({
+  title: z.string(),
+  subtitle: z.string().default(""),
+  badges: z.array(z.string()).default([]),
+  features: z.array(z.string()).default([]),
+  showcaseTitle: z.string().default(""),
+  ctaPrimary: z.string().default("Get Started"),
+  ctaSecondary: z.string().default("Learn More"),
+  logo: z.string().optional(),
+  backgroundImage: z.string().optional(),
+  colorScheme: z.enum(['cool', 'degen', 'cyberpunk', 'trendy', 'sport', 'random']).default('random'),
+  accentColor: z.string().optional(),
+});
+export type LandingTemplateProps = z.infer<typeof LandingTemplatePropsSchema>;
+
+export type AnyProps = BaseProps | MemeCoinProps | AppLandingProps | StepWizardProps | LandingTemplateProps;
 
 export const GenerationSchema = z.object({
   templateId: TemplateIdSchema,

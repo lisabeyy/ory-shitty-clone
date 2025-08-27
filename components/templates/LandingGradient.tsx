@@ -20,7 +20,7 @@ export default function LandingGradient({ title, subtitle, bullets, ctaText }: B
         <div className="text-center mb-20">
           <div className="inline-flex items-center space-x-3 mb-8 px-4 py-2 bg-white/10 backdrop-blur rounded-full border border-white/20">
             <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-blue-400 text-sm font-medium">Powered by Orynth</span>
+            <span className="text-blue-400 text-sm font-medium">Powered by @lisabeyy</span>
           </div>
 
           <h1 className="text-6xl md:text-7xl font-black mb-8 bg-gradient-to-r from-white via-blue-100 to-indigo-400 bg-clip-text text-transparent tracking-tight">

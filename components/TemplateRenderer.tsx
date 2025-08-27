@@ -5,6 +5,7 @@ import BubbleClickerShell from "./templates/BubbleClickerShell";
 import MinimalDocs from "./templates/MinimalDocs";
 import AppLanding from "./templates/AppLanding";
 import StepWizardBrief from "./templates/StepWizardBrief";
+import LandingTemplate from "./templates/LandingTemplate";
 import type { TemplateId } from "@/lib/templates";
 
 const map: Record<TemplateId, React.ComponentType<any>> = {
@@ -14,6 +15,7 @@ const map: Record<TemplateId, React.ComponentType<any>> = {
   minimalDocs: MinimalDocs,
   appLanding: AppLanding,
   stepWizardBrief: StepWizardBrief,
+  landingTemplate: LandingTemplate,
 };
 
 export default function TemplateRenderer({ templateId, props }: { templateId: TemplateId; props: any }) {
