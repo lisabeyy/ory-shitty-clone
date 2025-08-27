@@ -2,106 +2,72 @@ import React from "react";
 import type { MemeCoinProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
 
-interface MemeCoinProps {
-  title: string;
-  subtitle: string;
-  ticker: string;
-  description: string;
-  features: string[];
-  socialLinks: string[];
-}
-
-export default function MemeCoin({ title, subtitle, ticker, description, features, socialLinks }: MemeCoinProps) {
+export default function MemeCoin({ title, subtitle, bullets, ctaText, ticker, supply }: MemeCoinProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-red-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-purple-950 to-zinc-900 text-white relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
+
       <WebsiteHeader title={title} icon="🚀" />
-      
-      {/* Hero Section */}
-      <section className="pt-24 pb-16 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="text-8xl mb-6 animate-bounce">🚀</div>
-            <h1 className="text-6xl md:text-8xl font-black mb-6 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
-              {title}
-            </h1>
-            <p className="text-2xl md:text-3xl text-white/80 mb-8 max-w-4xl mx-auto leading-relaxed">
-              {subtitle}
-            </p>
-            <div className="inline-flex items-center space-x-4 px-8 py-4 bg-white/10 backdrop-blur rounded-2xl border border-white/20">
-              <span className="text-3xl font-bold text-yellow-400">{ticker}</span>
-              <span className="text-white/60">Token</span>
+
+      <div className="container mx-auto px-6 pt-32 pb-20 relative z-10">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center space-x-3 mb-6 px-4 py-2 bg-white/10 backdrop-blur rounded-full border border-white/20">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            <span className="text-emerald-400 text-sm font-medium">Live on Solana</span>
+          </div>
+
+          <h1 className="text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r from-white via-emerald-100 to-emerald-400 bg-clip-text text-transparent">
+            {title} <span className="text-emerald-400">{ticker}</span>
+          </h1>
+
+          <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">{subtitle}</p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          {bullets?.map((b, i) => (
+            <div key={i} className="group relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4">
+                  <span className="text-white font-bold text-lg">{i + 1}</span>
+                </div>
+                <p className="text-white/90 text-lg leading-relaxed">{b}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Token Info & CTA */}
+        <div className="flex flex-col md:flex-row gap-8 items-center justify-center mb-16">
+          <div className="group relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative rounded-2xl border border-emerald-500/30 p-8 bg-emerald-500/10 backdrop-blur hover:bg-emerald-500/20 transition-all duration-300">
+              <div className="text-center">
+                <div className="text-emerald-400 text-sm font-medium mb-2">Total Supply</div>
+                <div className="text-4xl font-black text-white">{supply}</div>
+                <div className="text-emerald-300 text-sm mt-2">Tokens Available</div>
+              </div>
             </div>
           </div>
 
-          {/* Description */}
-          <div className="max-w-3xl mx-auto mb-12">
-            <p className="text-xl text-white/70 leading-relaxed">
-              {description}
-            </p>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <button className="px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-black font-bold text-xl rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-xl">
-              🚀 Launch App
-            </button>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur border border-white/20 hover:bg-white/20 text-white font-bold text-xl rounded-2xl transition-all duration-300 transform hover:scale-105">
-              📖 Read Whitepaper
-            </button>
-          </div>
+          <button className="group relative px-8 py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/25">
+            <span className="relative z-10">{ctaText}</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-2xl blur opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+          </button>
         </div>
-      </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-            Why {ticker}?
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
-              >
-                <div className="text-4xl mb-4">✨</div>
-                <h3 className="text-xl font-bold text-white mb-4">{feature}</h3>
-                <p className="text-white/70">
-                  Revolutionary feature that sets {ticker} apart from the competition.
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Social Links */}
-      <section className="py-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-            Join the {ticker} Community
-          </h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {socialLinks.map((social, index) => (
-              <button
-                key={index}
-                className="px-6 py-3 bg-white/10 backdrop-blur border border-white/20 hover:bg-white/20 text-white font-medium rounded-xl transition-all duration-300 transform hover:scale-105"
-              >
-                {social}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-white/20">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-white/60">
-            🚀 Built with ❤️ by the {ticker} team • Powered by Orynth
+        {/* Disclaimer */}
+        <div className="text-center">
+          <p className="text-white/50 text-sm bg-white/5 backdrop-blur rounded-xl px-6 py-3 inline-block border border-white/10">
+            ⚠️ Demo page - No actual token deployment. This is a showcase of Orynth's website generation capabilities.
           </p>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

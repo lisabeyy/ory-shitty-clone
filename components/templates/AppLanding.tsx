@@ -2,18 +2,7 @@ import React from "react";
 import type { AppLandingProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
 
-interface AppLandingProps {
-  title: string;
-  subtitle: string;
-  description: string;
-  badges: string[];
-  features: string[];
-  showcaseTitle: string;
-  ctaPrimary: string;
-  ctaSecondary: string;
-}
-
-export default function AppLanding({ title, subtitle, description, badges, features, showcaseTitle, ctaPrimary, ctaSecondary }: AppLandingProps) {
+export default function AppLanding({ title, subtitle, badges, features, showcaseTitle, ctaPrimary, ctaSecondary }: AppLandingProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
       <WebsiteHeader title={title} icon="⚡" />
@@ -40,13 +29,6 @@ export default function AppLanding({ title, subtitle, description, badges, featu
                   {badge}
                 </span>
               ))}
-            </div>
-
-            {/* Description */}
-            <div className="max-w-3xl mx-auto mb-12">
-              <p className="text-xl text-white/70 leading-relaxed">
-                {description}
-              </p>
             </div>
 
             {/* CTA Buttons */}
