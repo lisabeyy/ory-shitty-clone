@@ -156,7 +156,7 @@ export default function Home() {
             </a>
 
             <a
-              href="https://github.com/lisabeyy/ory-shitty-clone.git"
+              href="https://github.com/lisabeyy/ory-the-clone.git"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-emerald-500/25 overflow-hidden"
