@@ -173,7 +173,7 @@ export function getFeatureEmoji(featureText: string): string {
     
     // Support & Service
     'support': '🆘', 'help': '🆘', 'assistance': '🤝', 'service': '🛎️', 'customer': '👥',
-    '24/7': '🕐', 'always': '🕐', 'available': '✅', 'responsive': '📱',
+    '24/7': '🕐', 'always': '🕐', 'available': '✅',
     
     // Community & Social
     'community': '👥', 'social': '🌐', 'network': '🌐', 'collaboration': '🤝', 'team': '👥',
@@ -189,7 +189,7 @@ export function getFeatureEmoji(featureText: string): string {
     
     // Business & Enterprise
     'business': '💼', 'enterprise': '🏢', 'professional': '👔', 'corporate': '🏢', 'scalable': '📈',
-    'growth': '📈', 'expansion': '🚀', 'scale': '📈', 'enterprise': '🏢',
+    'growth': '📈', 'expansion': '🚀', 'scale': '📈',
     
     // Creative & Design
     'creative': '🎨', 'design': '🎨', 'beautiful': '✨', 'aesthetic': '🎨', 'visual': '👁️',
@@ -197,7 +197,7 @@ export function getFeatureEmoji(featureText: string): string {
     
     // Education & Learning
     'education': '📚', 'learning': '📖', 'knowledge': '🧠', 'training': '🎓', 'tutorial': '📖',
-    'guide': '🗺️', 'help': '🆘', 'teach': '👨‍🏫', 'learn': '📖',
+    'guide': '🗺️', 'teach': '👨‍🏫', 'learn': '📖',
     
     // Health & Wellness
     'health': '🏥', 'wellness': '💚', 'fitness': '💪', 'medical': '🏥', 'care': '💚',

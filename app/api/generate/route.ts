@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     console.log('🔧 Generated props:', props);
 
     // Generate random style parameters that will be stored
-    const styleParams = generateRandomStyleParams();
+    const styleParams = generateRandomStyleParams(titleAndIcon.title);
     console.log('🎨 Generated style parameters:', styleParams);
 
     // Add style parameters to props
