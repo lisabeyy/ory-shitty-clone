@@ -1,7 +1,7 @@
 import React from "react";
 import type { BaseProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
-import { getStoredStyleParams } from "@/lib/consistentStyles";
+import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 
 export default function CardGrid({ title, subtitle, bullets, ctaText, icon, styleParams }: BaseProps) {
   // Use stored style parameters or fall back to consistent ones
@@ -48,7 +48,7 @@ export default function CardGrid({ title, subtitle, bullets, ctaText, icon, styl
                 <div className={`absolute inset-0 ${colors.timeline} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 <div className={`relative rounded-2xl border ${colors.border} p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40`}>
                   <div className={`w-16 h-16 bg-gradient-to-r ${colors.accent} rounded-2xl flex items-center justify-center mb-6`}>
-                    <span className="text-white text-2xl">{icon}</span>
+                    <span className="text-white text-2xl">{getFeatureEmoji(bullet)}</span>
                   </div>
                   <h3 className="text-xl font-bold text-white mb-4">Feature {index + 1}</h3>
                   <p className="text-white/80 text-lg leading-relaxed">{bullet}</p>

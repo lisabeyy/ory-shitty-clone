@@ -1,7 +1,7 @@
 import React from "react";
 import type { LandingTemplateProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
-import { getStoredStyleParams } from "@/lib/consistentStyles";
+import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 
 export default function LandingTemplate({
   title,
@@ -117,7 +117,7 @@ export default function LandingTemplate({
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
                   <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4">
-                    <span className="text-white font-bold text-lg">{index + 1}</span>
+                    <span className="text-white text-2xl">{getFeatureEmoji(feature)}</span>
                   </div>
                   <p className="text-white/90 text-lg leading-relaxed">{feature}</p>
                 </div>

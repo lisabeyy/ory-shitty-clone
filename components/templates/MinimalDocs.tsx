@@ -1,108 +1,69 @@
 import React from "react";
 import type { BaseProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
+import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 
-export default function MinimalDocs({ title, subtitle, bullets, icon }: BaseProps) {
-  // Add some randomness to colors
-  const colorSchemes = [
-    { bg: 'from-slate-950 via-slate-900 to-slate-800', primary: 'from-white via-slate-100 to-blue-400', accent: 'from-blue-500 to-purple-500', glow: 'from-blue-500/10 to-purple-500/10' },
-    { bg: 'from-slate-950 via-indigo-900 to-slate-800', primary: 'from-white via-indigo-100 to-indigo-400', accent: 'from-indigo-500 to-blue-500', glow: 'from-indigo-500/10 to-blue-500/10' },
-    { bg: 'from-slate-950 via-emerald-900 to-slate-800', primary: 'from-white via-emerald-100 to-emerald-400', accent: 'from-emerald-500 to-teal-500', glow: 'from-emerald-500/10 to-teal-500/10' },
-    { bg: 'from-slate-950 via-purple-900 to-slate-800', primary: 'from-white via-purple-100 to-purple-400', accent: 'from-purple-500 to-pink-500', glow: 'from-purple-500/10 to-pink-500/10' }
-  ];
-
-  const randomColors = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
-
+export default function MinimalDocs({ title, subtitle, bullets, ctaText, icon, styleParams }: BaseProps) {
+  // Use stored style parameters or fall back to consistent ones
+  const { colors, gridLayout } = getStoredStyleParams(styleParams, title);
+  
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${randomColors.bg} text-slate-200 relative overflow-hidden`}>
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-slate-500/5" />
-      <div className={`absolute top-1/4 left-1/4 w-96 h-96 ${randomColors.glow} rounded-full blur-3xl`} />
-      <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 ${randomColors.glow} rounded-full blur-3xl`} />
-
+    <div className={`min-h-screen bg-gradient-to-br ${colors.bg} text-white`}>
       <WebsiteHeader title={title} icon={icon} />
-
-      <div className="max-w-4xl mx-auto px-6 pt-32 pb-20 relative z-10">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center space-x-3 mb-6 px-4 py-2 bg-white/10 backdrop-blur rounded-full border border-white/20">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-blue-400 text-sm font-medium">Documentation</span>
-          </div>
-
-          <h1 className={`text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r ${randomColors.primary} bg-clip-text text-transparent`}>
-            {title}
-          </h1>
-
-          <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">{subtitle}</p>
-        </div>
-
-        {/* Content */}
-        <div className="bg-white/5 backdrop-blur rounded-3xl border border-white/10 p-8 md:p-12">
-          <div className="prose prose-invert prose-lg max-w-none">
-            <h2 className="text-3xl font-bold mb-6 text-white flex items-center">
-              <span className="text-2xl mr-3">{icon}</span>
-              Overview
-            </h2>
-            <p className="text-slate-300 text-lg leading-relaxed mb-8">
-              This is a minimal documentation template designed for clarity and readability.
-              Replace this content with your actual documentation.
+      
+      {/* Hero Section */}
+      <section className="pt-24 pb-16 px-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="text-8xl mb-6 animate-pulse">{icon}</div>
+            <h1 className={`text-6xl md:text-8xl font-black mb-6 bg-gradient-to-r ${colors.primary} bg-clip-text text-transparent`}>
+              {title}
+            </h1>
+            <p className="text-2xl md:text-3xl text-white/80 mb-8 max-w-4xl mx-auto leading-relaxed">
+              {subtitle}
             </p>
 
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <span className="text-xl mr-3">{icon}</span>
-              Key Features
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {/* Randomize between 2 or 3 columns */}
-              {(() => {
-                const useThreeColumns = Math.random() > 0.5;
-                const gridCols = useThreeColumns ? 'md:grid-cols-3' : 'md:grid-cols-2';
-                const maxBullets = useThreeColumns ? 6 : 4; // Ensure even numbers
-
-                return (
-                  <div className={`grid ${gridCols} gap-6`}>
-                    {bullets?.slice(0, maxBullets).map((b, i) => (
-                      <div key={i} className="group relative">
-                        <div className={`absolute inset-0 ${randomColors.glow} rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                        <div className="relative bg-white/5 backdrop-blur rounded-xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:border-white/20">
-                          <div className={`w-8 h-8 bg-gradient-to-r ${randomColors.accent} rounded-lg flex items-center justify-center mb-3`}>
-                            <span className="text-white font-bold text-sm">{i + 1}</span>
-                          </div>
-                          <p className="text-slate-200 text-lg leading-relaxed">{b}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-            </div>
-
-            <h3 className="text-2xl font-bold mb-6 text-white flex items-center">
-              <span className="text-xl mr-3">🚀</span>
-              Getting Started
-            </h3>
-            <p className="text-slate-300 text-lg leading-relaxed mb-6">
-              Follow these steps to get up and running with your project:
-            </p>
-            <ol className="list-decimal list-inside space-y-3 text-slate-300 text-lg">
-              <li>Review the key points above</li>
-              <li>Set up your development environment</li>
-              <li>Install required dependencies</li>
-              <li>Run the project locally</li>
-              <li>Connect your Solana wallet to unlock full features</li>
-            </ol>
+            {/* CTA Button */}
+            <button className={`px-8 py-4 bg-gradient-to-r ${colors.accent} hover:from-blue-600 hover:to-cyan-600 text-white font-bold text-xl rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-xl`}>
+              {ctaText}
+            </button>
           </div>
         </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="text-center mt-16">
-          <p className="text-slate-400 text-sm bg-white/5 backdrop-blur rounded-xl px-6 py-3 inline-block border border-white/10">
-            📚 Documentation template — Powered by Orynth
+      {/* Key Features Section */}
+      <section className="py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            Key Features
+          </h2>
+          
+          {/* Use stored grid layout */}
+          <div className={`grid ${gridLayout.gridCols} gap-8`}>
+            {bullets?.slice(0, gridLayout.maxItems).map((bullet, index) => (
+              <div
+                key={index}
+                className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+              >
+                <div className="text-4xl mb-4">{getFeatureEmoji(bullet)}</div>
+                <h3 className="text-xl font-bold text-white mb-4">{bullet}</h3>
+                <p className="text-white/70">
+                  Essential feature that makes {title} stand out from the competition.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-6 border-t border-white/20">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-white/60">
+            📚 Built with ❤️ by the {title} team • Powered by Orynth
           </p>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
   );
 }

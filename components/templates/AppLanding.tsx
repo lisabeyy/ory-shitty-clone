@@ -1,7 +1,7 @@
 import React from "react";
 import type { AppLandingProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
-import { getStoredStyleParams } from "@/lib/consistentStyles";
+import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 
 export default function AppLanding({ title, subtitle, badges, features, showcaseTitle, ctaPrimary, ctaSecondary, icon, styleParams }: AppLandingProps) {
   // Use stored style parameters or fall back to consistent ones
@@ -62,7 +62,7 @@ export default function AppLanding({ title, subtitle, badges, features, showcase
                 key={index}
                 className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
               >
-                <div className="text-4xl mb-4">{icon}</div>
+                <div className="text-4xl mb-4">{getFeatureEmoji(feature)}</div>
                 <h3 className="text-xl font-bold text-white mb-4">{feature}</h3>
                 <p className="text-white/70">
                   Revolutionary feature that sets {title} apart from the competition.
