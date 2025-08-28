@@ -60,7 +60,7 @@ export default function MinimalDocs({ title, subtitle, bullets, ctaText, icon, s
       <footer className="py-8 px-6 border-t border-white/20">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-white/60">
-            📚 Built with ❤️ by the {title} team • Powered by Orynth
+            📚 Built with ❤️ by the {title} team • Powered by LisaBeyy
           </p>
         </div>
       </footer>

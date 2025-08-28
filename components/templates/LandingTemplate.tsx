@@ -129,7 +129,7 @@ export default function LandingTemplate({
         {/* Footer */}
         <footer className="text-center">
           <p className="text-white/60 text-sm bg-white/5 backdrop-blur rounded-xl px-6 py-3 inline-block border border-white/10">
-            🎯 Built with ❤️ by the {title} team • Powered by Orynth
+            🎯 Built with ❤️ by the {title} team • Powered by LisaBeyy
           </p>
         </footer>
       </div>

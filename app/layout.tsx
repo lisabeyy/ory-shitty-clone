@@ -13,7 +13,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Orynth Clone - AI Website Generator",
+  title: "No-Code Website Generator - AI Website Generator",
   description: "Generate professional websites from natural language prompts",
   icons: {
     icon: '/favicon.svg',

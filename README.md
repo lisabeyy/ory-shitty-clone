@@ -1,4 +1,4 @@
-# ORYnth-style Site Generator
+# NoCode Orynth-style Site Generator
 
 Prompt → Template JSON (via Claude) → Persist (Vercel KV or memory) → Render at `/website/[slug]`.
 

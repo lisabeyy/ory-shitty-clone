@@ -100,7 +100,7 @@ export default function Home() {
                 <span className="text-white font-bold text-sm relative z-10">O</span>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-space-grotesk">
-                Orynth
+                NoCodeDev
               </span>
             </div>
             <div className="flex items-center space-x-6">
@@ -127,7 +127,7 @@ export default function Home() {
           {/* Main Title with Glitch Effect */}
           <h1 className="text-6xl md:text-8xl font-black mb-6 leading-tight font-space-grotesk">
             <span className="bg-gradient-to-r from-white via-purple-300 to-pink-400 bg-clip-text text-transparent animate-pulse-neon">
-              Orynth Clone
+              No-Code Website Generator
             </span>
             <span className="block text-4xl md:text-6xl bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mt-2 animate-float">
               lol

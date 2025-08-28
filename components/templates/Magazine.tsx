@@ -93,7 +93,7 @@ export default function Magazine({ title, subtitle, bullets, ctaText, icon, styl
         {/* Footer */}
         <footer className="text-center">
           <p className="text-white/60 text-sm bg-white/5 backdrop-blur rounded-xl px-6 py-3 inline-block border border-white/10">
-            📖 Magazine template — Powered by Orynth
+            📖 Magazine template — Powered by LisaBeyy
           </p>
         </footer>
       </div>

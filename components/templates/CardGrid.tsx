@@ -93,7 +93,7 @@ export default function CardGrid({ title, subtitle, bullets, ctaText, icon, styl
         {/* Footer */}
         <footer className="text-center mt-20">
           <p className="text-white/60 text-sm bg-white/5 backdrop-blur rounded-xl px-6 py-3 inline-block border border-white/10">
-            🎯 Card Grid template — Powered by Orynth
+            🎯 Card Grid template — Powered by LisaBeyy
           </p>
         </footer>
       </div>
