@@ -3,24 +3,24 @@ import type { LandingTemplateProps } from "@/lib/templates";
 import WebsiteHeader from "../WebsiteHeader";
 import { getStoredStyleParams } from "@/lib/consistentStyles";
 
-export default function LandingTemplate({ 
-  title, 
-  subtitle, 
-  badges, 
-  features, 
-  showcaseTitle, 
-  ctaPrimary, 
-  ctaSecondary, 
-  logo, 
-  backgroundImage, 
-  colorScheme, 
+export default function LandingTemplate({
+  title,
+  subtitle,
+  badges,
+  features,
+  showcaseTitle,
+  ctaPrimary,
+  ctaSecondary,
+  logo,
+  backgroundImage,
+  colorScheme,
   accentColor,
   icon,
   styleParams
 }: LandingTemplateProps) {
   // Use stored style parameters or fall back to consistent ones
   const { colors, gridLayout } = getStoredStyleParams(styleParams, title);
-  
+
   // Color schemes
   const colorSchemes = {
     cool: {
@@ -54,10 +54,10 @@ export default function LandingTemplate({
       text: 'text-emerald-300'
     }
   };
-  
+
   // Use stored colors if available, otherwise fall back to colorScheme prop
   const finalColors = colors || colorSchemes[colorScheme as keyof typeof colorSchemes] || colorSchemes.trendy;
-  
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${finalColors.bg} text-white relative overflow-hidden`}>
       {/* Background effects */}
@@ -80,7 +80,7 @@ export default function LandingTemplate({
           </h1>
 
           <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">{subtitle}</p>
-          
+
           {/* Badges */}
           <div className="flex flex-wrap justify-center gap-3 mb-8">
             {badges?.map((badge, index) => (
@@ -109,7 +109,7 @@ export default function LandingTemplate({
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             {showcaseTitle}
           </h2>
-          
+
           {/* Use stored grid layout */}
           <div className={`grid ${gridLayout.gridCols} gap-8`}>
             {features?.slice(0, gridLayout.maxItems).map((feature, index) => (
