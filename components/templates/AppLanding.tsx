@@ -62,7 +62,7 @@ export default function AppLanding({ title, subtitle, badges, features, showcase
                 key={index}
                 className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
               >
-                <div className="text-4xl mb-4">🚀</div>
+                <div className="text-4xl mb-4">{icon}</div>
                 <h3 className="text-xl font-bold text-white mb-4">{feature}</h3>
                 <p className="text-white/70">
                   Revolutionary feature that sets {title} apart from the competition.

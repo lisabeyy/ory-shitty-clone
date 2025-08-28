@@ -19,9 +19,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { prompt } = body; // Extract prompt directly from body
 
-    if (!prompt || typeof prompt !== 'string') {
-      return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
-    }
+  if (!prompt || typeof prompt !== 'string') {
+    return NextResponse.json({ error: 'Prompt required' }, { status: 400 });
+  }
 
     console.log('🚀 Starting generation for prompt:', prompt);
 
@@ -81,10 +81,10 @@ async function generateTitleAndIcon(prompt: string) {
   try {
     console.log('🎨 Sending prompt to Claude for title/icon generation...');
     const response = await anthropic.messages.create({
-      model: CLAUDE_MODEL,
+    model: CLAUDE_MODEL,
       max_tokens: 200,
       temperature: 0.8,
-      messages: [
+    messages: [
         {
           role: "user",
           content: `You are an expert at creating catchy, relevant website titles and choosing appropriate icons.

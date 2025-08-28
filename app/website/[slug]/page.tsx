@@ -20,6 +20,10 @@ export default async function SitePage({ params }: SitePageProps) {
     notFound();
   }
   
+  console.log("Retrieved site data:", siteData);
+  console.log("Props:", siteData.props);
+  console.log("Style params:", siteData.props?.styleParams);
+  
   const { templateId, props, title, icon } = siteData;
   
   return (

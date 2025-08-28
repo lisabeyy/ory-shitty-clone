@@ -80,12 +80,48 @@ export function getStoredStyleParams(styleParams: any, fallbackIdentifier: strin
 
 function getColorsByName(name: string) {
   const colorMap: Record<string, any> = {
-    blue: { bg: 'from-slate-950 via-blue-950 to-slate-900', primary: 'from-blue-400 via-cyan-400 to-blue-600', accent: 'from-blue-500 to-cyan-500' },
-    purple: { bg: 'from-slate-950 via-purple-950 to-slate-900', primary: 'from-purple-400 via-pink-400 to-purple-600', accent: 'from-purple-500 to-pink-500' },
-    emerald: { bg: 'from-slate-950 via-emerald-950 to-slate-900', primary: 'from-emerald-400 via-teal-400 to-emerald-600', accent: 'from-emerald-500 to-teal-500' },
-    indigo: { bg: 'from-slate-950 via-indigo-950 to-slate-900', primary: 'from-indigo-400 via-blue-400 to-indigo-600', accent: 'from-indigo-500 to-blue-500' },
-    rose: { bg: 'from-slate-950 via-rose-950 to-slate-900', primary: 'from-rose-400 via-pink-400 to-rose-600', accent: 'from-rose-500 to-pink-500' },
-    amber: { bg: 'from-slate-950 via-amber-950 to-slate-900', primary: 'from-amber-400 via-orange-400 to-amber-600', accent: 'from-amber-500 to-orange-500' }
+    blue: { 
+      bg: 'from-slate-950 via-blue-950 to-slate-900', 
+      primary: 'from-blue-400 via-cyan-400 to-blue-600', 
+      accent: 'from-blue-500 to-cyan-500',
+      timeline: 'from-blue-500/20 to-cyan-500/20',
+      border: 'border-blue-500/30'
+    },
+    purple: { 
+      bg: 'from-slate-950 via-purple-950 to-slate-900', 
+      primary: 'from-purple-400 via-pink-400 to-purple-600', 
+      accent: 'from-purple-500 to-pink-500',
+      timeline: 'from-purple-500/20 to-pink-500/20',
+      border: 'border-purple-500/30'
+    },
+    emerald: { 
+      bg: 'from-slate-950 via-emerald-950 to-slate-900', 
+      primary: 'from-emerald-400 via-teal-400 to-emerald-600', 
+      accent: 'from-emerald-500 to-teal-500',
+      timeline: 'from-emerald-500/20 to-teal-500/20',
+      border: 'border-emerald-500/30'
+    },
+    indigo: { 
+      bg: 'from-slate-950 via-indigo-950 to-slate-900', 
+      primary: 'from-indigo-400 via-blue-400 to-indigo-600', 
+      accent: 'from-indigo-500 to-blue-500',
+      timeline: 'from-indigo-500/20 to-blue-500/20',
+      border: 'border-indigo-500/30'
+    },
+    rose: { 
+      bg: 'from-slate-950 via-rose-950 to-slate-900', 
+      primary: 'from-rose-400 via-pink-400 to-rose-600', 
+      accent: 'from-rose-500 to-pink-500',
+      timeline: 'from-rose-500/20 to-pink-500/20',
+      border: 'border-rose-500/30'
+    },
+    amber: { 
+      bg: 'from-slate-950 via-amber-950 to-slate-900', 
+      primary: 'from-amber-400 via-orange-400 to-amber-600', 
+      accent: 'from-amber-500 to-orange-500',
+      timeline: 'from-amber-500/20 to-orange-500/20',
+      border: 'border-amber-500/30'
+    }
   };
   
   return colorMap[name] || colorMap.blue;

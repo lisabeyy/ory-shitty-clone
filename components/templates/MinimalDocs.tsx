@@ -49,10 +49,10 @@ export default function MinimalDocs({ title, subtitle, bullets, icon }: BaseProp
               Replace this content with your actual documentation.
             </p>
 
-            <h3 className="text-2xl font-bold mb-6 text-white flex items-center">
-              <span className="text-xl mr-3">🔑</span>
-              Key Points
-            </h3>
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <span className="text-xl mr-3">{icon}</span>
+              Key Features
+            </h2>
 
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               {/* Randomize between 2 or 3 columns */}
