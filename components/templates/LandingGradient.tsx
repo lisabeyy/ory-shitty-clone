@@ -47,7 +47,7 @@ export default function LandingGradient({ title, subtitle, bullets, ctaText, ico
             const useThreeColumns = Math.random() > 0.5;
             const gridCols = useThreeColumns ? 'md:grid-cols-3' : 'md:grid-cols-2';
             const maxBullets = useThreeColumns ? 6 : 4; // Ensure even numbers
-            
+
             return (
               <div className={`grid ${gridCols} gap-8`}>
                 {bullets?.slice(0, maxBullets).map((b, i) => (

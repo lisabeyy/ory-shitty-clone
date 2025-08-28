@@ -15,7 +15,7 @@ export default function WebsiteHeader({ title = "Amazing Website", icon = "✨" 
             <div className="text-2xl">{icon}</div>
             <div>
               <h1 className="text-xl font-bold text-white">{title}</h1>
-              <p className="text-xs text-white/60">Built with Orynth</p>
+              <p className="text-xs text-white/60">Built with LisaBeyy</p>
             </div>
           </div>
 

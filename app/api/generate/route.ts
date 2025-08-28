@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
-import { GenerationSchema, BasePropsSchema, MemeCoinPropsSchema, AppLandingPropsSchema, StepWizardPropsSchema, LandingTemplatePropsSchema } from "@/lib/templates";
+import { GenerationSchema, BasePropsSchema, MemeCoinPropsSchema, AppLandingPropsSchema, StepWizardPropsSchema } from "@/lib/templates";
 import { slugify, nano } from "@/lib/slug";
 import { saveSite } from "@/lib/store";
+import { generateRandomStyleParams } from "@/lib/consistentStyles";
 
 // Allowed templateId values
 const ALLOWED_TEMPLATES = [
@@ -13,9 +14,9 @@ const ALLOWED_TEMPLATES = [
   "landingTemplate"
 ];
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await request.json();
     const { prompt } = body; // Extract prompt directly from body
 
     if (!prompt || typeof prompt !== 'string') {
@@ -24,48 +25,55 @@ export async function POST(req: NextRequest) {
 
     console.log('🚀 Starting generation for prompt:', prompt);
 
-    // Generate AI-based title and icon
+    // Generate title and icon first
     const titleAndIcon = await generateTitleAndIcon(prompt);
     console.log('✅ Generated title and icon:', titleAndIcon);
-    
-    // Determine template based on prompt content
+
+    // Determine template based on prompt
     const templateId = determineTemplate(prompt);
-    console.log('🎯 Selected template:', templateId);
-    
-    // Generate props based on template
+    console.log('🎨 Selected template:', templateId);
+
+    // Generate props for the template
     const props = await generateProps(prompt, templateId, titleAndIcon);
-    console.log('⚙️ Generated props:', props);
-    
-    // Create slug
-    const slug = slugify(titleAndIcon.title) + "-" + nano();
-    
-    // Save to store
-    const siteData = {
-      templateId,
-      props,
-      prompt,
-      createdAt: new Date().toISOString(),
-      title: titleAndIcon.title,
-      icon: titleAndIcon.icon
+    console.log('🔧 Generated props:', props);
+
+    // Generate random style parameters that will be stored
+    const styleParams = generateRandomStyleParams();
+    console.log('🎨 Generated style parameters:', styleParams);
+
+    // Add style parameters to props
+    const propsWithStyles = {
+      ...props,
+      styleParams
     };
-    
-    await saveSite(slug, siteData);
-    console.log('💾 Saved site with slug:', slug);
-    
-    return NextResponse.json({ 
-      slug, 
-      templateId, 
-      props,
+
+    // Generate slug
+    const slug = slugify(titleAndIcon.title);
+    console.log('🔗 Generated slug:', slug);
+
+    // Save to database
+    const siteData = {
+      slug,
       title: titleAndIcon.title,
-      icon: titleAndIcon.icon
+      icon: titleAndIcon.icon,
+      templateId,
+      props: propsWithStyles,
+      createdAt: new Date().toISOString()
+    };
+
+    await saveSite(slug, siteData);
+    console.log('💾 Saved site to database:', slug);
+
+    return NextResponse.json({
+      success: true,
+      slug,
+      url: `/website/${slug}`,
+      data: siteData
     });
-    
+
   } catch (error) {
-    console.error('❌ Generation error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate website' }, 
-      { status: 500 }
-    );
+    console.error('❌ Generation failed:', error);
+    return NextResponse.json({ error: 'Generation failed' }, { status: 500 });
   }
 }
 
@@ -154,7 +162,7 @@ function determineTemplate(prompt: string): string {
   
   // Sometimes randomly select a template for variety (20% chance)
   if (Math.random() < 0.2) {
-    const allTemplates = ["memeCoin", "appLanding", "stepWizard", "minimalDocs", "landingTemplate", "cardGrid", "timeline", "magazine"];
+    const allTemplates = ["memeCoin", "appLanding", "stepWizard", "minimalDocs", "landingTemplate", "cardGrid", "timeline", "magazine", "bubbleClickerShell"];
     return allTemplates[Math.floor(Math.random() * allTemplates.length)];
   }
   
@@ -167,6 +175,8 @@ function determineTemplate(prompt: string): string {
     return "stepWizard";
   } else if (lowerPrompt.includes('doc') || lowerPrompt.includes('documentation') || lowerPrompt.includes('api')) {
     return "minimalDocs";
+  } else if (lowerPrompt.includes('game') || lowerPrompt.includes('clicker') || lowerPrompt.includes('bubble')) {
+    return "bubbleClickerShell";
   } else {
     // Randomly select from modern templates for variety
     const modernTemplates = ["landingTemplate", "cardGrid", "timeline", "magazine"];
@@ -179,8 +189,8 @@ async function generateProps(prompt: string, templateId: string, titleAndIcon: {
     console.log('🤖 Sending prompt to Claude for props generation...');
     const response = await anthropic.messages.create({
       model: CLAUDE_MODEL,
-      max_tokens: 1000,
-      temperature: 0.8,
+      max_tokens: 1500,
+      temperature: 0.9,
       messages: [
         {
           role: "user",
@@ -190,22 +200,35 @@ Template: ${templateId}
 Title: ${titleAndIcon.title}
 Icon: ${titleAndIcon.icon}
 
-IMPORTANT: The content must be highly relevant to the user's prompt. If they ask for a school website, create school-specific content. If they ask for a restaurant, create restaurant-specific content. Make it feel like a real, professional website.
+CRITICAL INSTRUCTION: Generate ACTUAL content, NOT instructions or placeholders.
+
+EXAMPLES OF WHAT TO GENERATE:
+- For a "pizza restaurant website": 
+  * subtitle: "Authentic Italian flavors delivered to your door"
+  * features: ["Fresh Ingredients", "Fast Delivery", "Family Recipes", "Authentic Taste"]
+  * badges: ["Popular", "Fast Delivery", "Family Owned"]
+
+- For a "school website":
+  * subtitle: "Empowering students with innovative learning experiences"
+  * features: ["Academic Excellence", "Student Success", "Innovative Learning", "Community Focus"]
+  * badges: ["Excellence", "Innovation", "Community"]
+
+- For a "tech startup":
+  * subtitle: "Revolutionary AI solutions for modern businesses"
+  * features: ["AI-Powered Solutions", "Scalable Architecture", "24/7 Support", "Cutting-Edge Innovation"]
+  * badges: ["Innovation", "AI-Powered", "Enterprise Ready"]
 
 Generate props in this exact JSON format for ${templateId}:
 
 ${getTemplateSchema(templateId, titleAndIcon)}
 
-Guidelines:
-- Make the subtitle specific and relevant to the prompt
-- Create realistic badges that make sense for the business/website type
-- Generate features that are actually useful for the specific use case
-- Use appropriate CTA text for the business type
-- Make everything feel authentic and professional
+RULES:
+1. NEVER use text like "Generate feature names" or "Feature 1" - create REAL content
+2. Make everything highly relevant to the user's prompt
+3. Use professional, engaging language
+4. Create authentic business-specific content
 
-Example: If someone asks for a "pizza restaurant website", don't give generic "Feature 1, Feature 2" - give them "Fresh Ingredients", "Fast Delivery", "Family Recipes", etc.
-
-CRITICAL: Respond with ONLY the JSON object. Do not add any explanatory text before or after the JSON.`
+CRITICAL: Respond with ONLY the JSON object. Do not add any explanatory text.`
         }
       ]
     });
@@ -220,7 +243,12 @@ CRITICAL: Respond with ONLY the JSON object. Do not add any explanatory text bef
           const jsonString = jsonMatch[0];
           const parsed = JSON.parse(jsonString);
           console.log('✅ Successfully parsed props:', parsed);
-          return parsed;
+          
+          // Post-process to replace any instruction text with actual content
+          const processed = postProcessProps(parsed, prompt, templateId);
+          console.log('🔧 Post-processed props:', processed);
+          
+          return processed;
         } else {
           console.error('❌ No JSON found in response');
         }
@@ -238,62 +266,198 @@ CRITICAL: Respond with ONLY the JSON object. Do not add any explanatory text bef
   return getFallbackProps(templateId, titleAndIcon);
 }
 
+function postProcessProps(props: any, prompt: string, templateId: string): any {
+  const processed = { ...props };
+  
+  // Replace any instruction text with actual content based on the prompt
+  const lowerPrompt = prompt.toLowerCase();
+  
+  // Generate business-specific content based on prompt keywords
+  const businessType = getBusinessType(lowerPrompt);
+  const businessContent = getBusinessContent(businessType);
+  
+  // Process arrays (features, bullets, badges, etc.)
+  Object.keys(processed).forEach(key => {
+    if (Array.isArray(processed[key])) {
+      processed[key] = processed[key].map((item: string) => {
+        if (typeof item === 'string' && (
+          item.includes('Generate') || 
+          item.includes('Feature 1') || 
+          item.includes('Badge 1') ||
+          item.includes('Step 1') ||
+          item.includes('Key Point 1')
+        )) {
+          // Replace instruction text with actual business content
+          return businessContent.features[Math.floor(Math.random() * businessContent.features.length)];
+        }
+        return item;
+      });
+    }
+  });
+  
+  // Process other fields
+  if (processed.subtitle && processed.subtitle.includes('Generate')) {
+    processed.subtitle = businessContent.subtitle;
+  }
+  
+  if (processed.ctaText && processed.ctaText.includes('Generate')) {
+    processed.ctaText = businessContent.cta;
+  }
+  
+  if (processed.ctaPrimary && processed.ctaPrimary.includes('Generate')) {
+    processed.ctaPrimary = businessContent.cta;
+  }
+  
+  if (processed.ctaSecondary && processed.ctaSecondary.includes('Generate')) {
+    processed.ctaSecondary = businessContent.ctaSecondary;
+  }
+  
+  return processed;
+}
+
+function getBusinessType(prompt: string): string {
+  if (prompt.includes('restaurant') || prompt.includes('food') || prompt.includes('pizza') || prompt.includes('cafe')) {
+    return 'restaurant';
+  } else if (prompt.includes('school') || prompt.includes('education') || prompt.includes('university') || prompt.includes('college')) {
+    return 'education';
+  } else if (prompt.includes('tech') || prompt.includes('startup') || prompt.includes('software') || prompt.includes('app')) {
+    return 'tech';
+  } else if (prompt.includes('health') || prompt.includes('medical') || prompt.includes('fitness') || prompt.includes('wellness')) {
+    return 'health';
+  } else if (prompt.includes('finance') || prompt.includes('bank') || prompt.includes('investment') || prompt.includes('crypto')) {
+    return 'finance';
+  } else {
+    return 'general';
+  }
+}
+
+function getBusinessContent(businessType: string) {
+  const contentMap: Record<string, any> = {
+    restaurant: {
+      subtitle: "Delicious food delivered with excellence",
+      features: ["Fresh Ingredients", "Fast Delivery", "Family Recipes", "Authentic Taste", "Quality Service", "Local Favorites"],
+      cta: "Order Now",
+      ctaSecondary: "View Menu"
+    },
+    education: {
+      subtitle: "Empowering students with innovative learning experiences",
+      features: ["Academic Excellence", "Student Success", "Innovative Learning", "Community Focus", "Expert Faculty", "Modern Facilities"],
+      cta: "Apply Now",
+      ctaSecondary: "Learn More"
+    },
+    tech: {
+      subtitle: "Revolutionary solutions for modern businesses",
+      features: ["AI-Powered Solutions", "Scalable Architecture", "24/7 Support", "Cutting-Edge Innovation", "Enterprise Ready", "User-Friendly Design"],
+      cta: "Get Started",
+      ctaSecondary: "Learn More"
+    },
+    health: {
+      subtitle: "Your health and wellness is our priority",
+      features: ["Expert Care", "Modern Facilities", "Personalized Treatment", "24/7 Support", "Professional Staff", "Advanced Technology"],
+      cta: "Book Appointment",
+      ctaSecondary: "Learn More"
+    },
+    finance: {
+      subtitle: "Secure and smart financial solutions",
+      features: ["Secure Platform", "Expert Advice", "Fast Transactions", "24/7 Support", "Competitive Rates", "User-Friendly Interface"],
+      cta: "Get Started",
+      ctaSecondary: "Learn More"
+    },
+    general: {
+      subtitle: "Professional service that exceeds expectations",
+      features: ["Quality Service", "Expert Team", "Innovative Solutions", "Customer Focus", "Reliable Performance", "Modern Approach"],
+      cta: "Get Started",
+      ctaSecondary: "Learn More"
+    }
+  };
+  
+  return contentMap[businessType] || contentMap.general;
+}
+
 function getTemplateSchema(templateId: string, titleAndIcon: { title: string, icon: string }): string {
   switch (templateId) {
     case "memeCoin":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "A compelling subtitle for the meme coin",
-        "bullets": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
-        "ctaText": "Get Started",
-        "ticker": "COIN",
-        "supply": "1,000,000,000"
+        "subtitle": "Generate a compelling subtitle for this meme coin based on the prompt",
+        "bullets": ["Generate 4 specific features for this meme coin", "Make them relevant to the prompt", "Use actual feature names, not 'Feature 1'", "Be creative and specific"],
+        "ctaText": "Generate appropriate CTA text for this meme coin",
+        "ticker": "Generate a 3-5 letter ticker symbol",
+        "supply": "Generate a realistic token supply number"
       }`;
     case "appLanding":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "A compelling subtitle that describes the app",
-        "badges": ["Badge 1", "Badge 2", "Badge 3"],
-        "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
-        "showcaseTitle": "Key Features",
-        "ctaPrimary": "Get Started",
-        "ctaSecondary": "Learn More"
+        "subtitle": "Generate a compelling subtitle that describes the app based on the prompt",
+        "badges": ["Generate 3 specific badges", "Make them relevant to the business type", "Use actual badge names, not 'Badge 1'"],
+        "features": ["Generate 4 specific features", "Make them relevant to the business type", "Use actual feature names, not 'Feature 1'", "Be creative and specific"],
+        "showcaseTitle": "Generate a relevant showcase title",
+        "ctaPrimary": "Generate primary CTA text",
+        "ctaSecondary": "Generate secondary CTA text"
       }`;
     case "stepWizard":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "A clear subtitle explaining the step-by-step process",
+        "subtitle": "Generate a clear subtitle explaining the step-by-step process based on the prompt",
         "steps": [
-          {"title": "Step 1", "desc": "Description of step 1"},
-          {"title": "Step 2", "desc": "Description of step 2"},
-          {"title": "Step 3", "desc": "Description of step 3"}
+          {"title": "Generate step 1 title", "desc": "Generate step 1 description"},
+          {"title": "Generate step 2 title", "desc": "Generate step 2 description"},
+          {"title": "Generate step 3 title", "desc": "Generate step 3 description"}
         ],
-        "highlights": ["Highlight 1", "Highlight 2", "Highlight 3"],
-        "ctaPrimary": "Get Started",
-        "disclaimer": "Important information about the process"
+        "highlights": ["Generate 3 specific highlights", "Make them relevant to the process", "Use actual highlight names"],
+        "ctaPrimary": "Generate primary CTA text",
+        "disclaimer": "Generate relevant disclaimer text"
       }`;
     case "minimalDocs":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "Documentation subtitle explaining the content",
-        "bullets": ["Key Point 1", "Key Point 2", "Key Point 3", "Key Point 4"],
-        "ctaText": "Get Started"
+        "subtitle": "Generate documentation subtitle explaining the content based on the prompt",
+        "bullets": ["Generate 4 specific key points", "Make them relevant to the documentation", "Use actual point names, not 'Key Point 1'", "Be creative and specific"],
+        "ctaText": "Generate appropriate CTA text"
       }`;
     case "landingTemplate":
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "A compelling subtitle that describes the product/service",
-        "badges": ["Badge 1", "Badge 2", "Badge 3"],
-        "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"],
-        "showcaseTitle": "Why Choose Us",
-        "ctaPrimary": "Get Started",
-        "ctaSecondary": "Learn More",
+        "subtitle": "Generate a compelling subtitle that describes the product/service based on the prompt",
+        "badges": ["Generate 3 specific badges", "Make them relevant to the business type", "Use actual badge names, not 'Badge 1'"],
+        "features": ["Generate 4 specific features", "Make them relevant to the business type", "Use actual feature names, not 'Feature 1'", "Be creative and specific"],
+        "showcaseTitle": "Generate a relevant showcase title",
+        "ctaPrimary": "Generate primary CTA text",
+        "ctaSecondary": "Generate secondary CTA text",
         "colorScheme": "trendy"
+      }`;
+    case "cardGrid":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Generate a compelling subtitle that describes the product/service based on the prompt",
+        "bullets": ["Generate 4-6 specific features", "Make them relevant to the business type", "Use actual feature names, not 'Feature 1'", "Be creative and specific", "Make them sound professional"],
+        "ctaText": "Generate appropriate CTA text"
+      }`;
+    case "timeline":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Generate a compelling subtitle that describes the process based on the prompt",
+        "bullets": ["Generate 4-6 specific steps", "Make them relevant to the business type", "Use actual step names, not 'Step 1'", "Be creative and specific", "Make them sound professional"],
+        "ctaText": "Generate appropriate CTA text"
+      }`;
+    case "magazine":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Generate a compelling subtitle that describes the content based on the prompt",
+        "bullets": ["Generate 4-6 specific articles/updates", "Make them relevant to the business type", "Use actual article names, not 'Article 1'", "Be creative and specific", "Make them sound professional"],
+        "ctaText": "Generate appropriate CTA text"
+      }`;
+    case "bubbleClickerShell":
+      return `{
+        "title": "${titleAndIcon.title}",
+        "subtitle": "Generate a compelling subtitle that describes the game based on the prompt",
+        "bullets": ["Generate 4-6 specific features", "Make them relevant to the game type", "Use actual feature names, not 'Feature 1'", "Be creative and specific", "Make them sound professional"],
+        "ctaText": "Generate appropriate CTA text"
       }`;
     default:
       return `{
         "title": "${titleAndIcon.title}",
-        "subtitle": "Default subtitle"
+        "subtitle": "Generate a subtitle based on the prompt"
       }`;
   }
 }
@@ -301,10 +465,10 @@ function getTemplateSchema(templateId: string, titleAndIcon: { title: string, ic
 function getFallbackProps(templateId: string, titleAndIcon: { title: string, icon: string }) {
   // Add some randomness to fallback props
   const randomFeatures = [
-    ["Innovative", "Reliable", "Fast", "Secure"],
-    ["Professional", "Creative", "Efficient", "Modern"],
-    ["Quality", "Trusted", "Advanced", "User-friendly"],
-    ["Cutting-edge", "Premium", "Scalable", "Intuitive"]
+    ["Innovative Solutions", "Reliable Performance", "Fast Response", "Secure Platform"],
+    ["Professional Service", "Creative Design", "Efficient Workflow", "Modern Technology"],
+    ["Quality Assurance", "Trusted Partner", "Advanced Features", "User-Friendly Interface"],
+    ["Cutting-Edge Innovation", "Premium Experience", "Scalable Architecture", "Intuitive Design"]
   ];
   
   const randomBadges = [
@@ -320,6 +484,11 @@ function getFallbackProps(templateId: string, titleAndIcon: { title: string, ico
     "Professional service that exceeds expectations",
     "Creative approach that delivers exceptional results"
   ];
+
+  const randomCTAs = [
+    "Get Started", "Begin Now", "Start Today", "Launch Now",
+    "Get Started", "Learn More", "Explore Now", "Discover More"
+  ];
   
   const randomIndex = Math.floor(Math.random() * 4);
   
@@ -329,7 +498,7 @@ function getFallbackProps(templateId: string, titleAndIcon: { title: string, ico
         title: titleAndIcon.title,
         subtitle: "The next big thing in crypto",
         bullets: ["Community Driven", "Transparent", "Innovative", "High Potential"],
-        ctaText: "Get Started",
+        ctaText: randomCTAs[randomIndex],
         ticker: "COIN",
         supply: "1,000,000,000"
       };
@@ -340,20 +509,20 @@ function getFallbackProps(templateId: string, titleAndIcon: { title: string, ico
         badges: randomBadges[randomIndex],
         features: randomFeatures[randomIndex],
         showcaseTitle: "Key Features",
-        ctaPrimary: "Get Started",
-        ctaSecondary: "Learn More"
+        ctaPrimary: randomCTAs[randomIndex],
+        ctaSecondary: randomCTAs[randomIndex + 4]
       };
     case "stepWizard":
       return {
         title: titleAndIcon.title,
         subtitle: "Follow these simple steps to success",
         steps: [
-          {title: "Step 1", desc: "Get started with the basics"},
-          {title: "Step 2", desc: "Configure your settings"},
-          {title: "Step 3", desc: "Launch and enjoy"}
+          {title: "Get Started", desc: "Begin your journey with the basics"},
+          {title: "Configure", desc: "Set up your preferences and settings"},
+          {title: "Launch", desc: "Go live and start achieving results"}
         ],
         highlights: ["Easy to follow", "Proven method", "Quick results"],
-        ctaPrimary: "Get Started",
+        ctaPrimary: randomCTAs[randomIndex],
         disclaimer: "Results may vary based on individual circumstances"
       };
     case "minimalDocs":
@@ -361,7 +530,7 @@ function getFallbackProps(templateId: string, titleAndIcon: { title: string, ico
         title: titleAndIcon.title,
         subtitle: "Complete documentation and guides",
         bullets: ["Getting Started", "Advanced Features", "Best Practices", "Troubleshooting"],
-        ctaText: "Get Started"
+        ctaText: randomCTAs[randomIndex]
       };
     case "landingTemplate":
       return {
@@ -370,9 +539,37 @@ function getFallbackProps(templateId: string, titleAndIcon: { title: string, ico
         badges: randomBadges[randomIndex],
         features: randomFeatures[randomIndex],
         showcaseTitle: "Why Choose Us",
-        ctaPrimary: "Get Started",
-        ctaSecondary: "Learn More",
+        ctaPrimary: randomCTAs[randomIndex],
+        ctaSecondary: randomCTAs[randomIndex + 4],
         colorScheme: "random"
+      };
+    case "cardGrid":
+      return {
+        title: titleAndIcon.title,
+        subtitle: randomSubtitles[randomIndex],
+        bullets: randomFeatures[randomIndex],
+        ctaText: randomCTAs[randomIndex]
+      };
+    case "timeline":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Your journey to success starts here",
+        bullets: ["Planning Phase", "Development", "Testing", "Launch", "Growth", "Scale"],
+        ctaText: randomCTAs[randomIndex]
+      };
+    case "magazine":
+      return {
+        title: titleAndIcon.title,
+        subtitle: "Stay updated with the latest insights",
+        bullets: ["Industry Trends", "Expert Analysis", "Case Studies", "Best Practices", "Innovation News", "Success Stories"],
+        ctaText: randomCTAs[randomIndex]
+      };
+    case "bubbleClickerShell":
+      return {
+        title: titleAndIcon.title,
+        subtitle: randomSubtitles[randomIndex],
+        bullets: randomFeatures[randomIndex],
+        ctaText: randomCTAs[randomIndex]
       };
     default:
       return {
