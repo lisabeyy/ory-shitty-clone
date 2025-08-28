@@ -6,7 +6,7 @@ import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 export default function Timeline({ title, subtitle, bullets, ctaText, icon, styleParams }: BaseProps) {
   // Use stored style parameters or fall back to consistent ones
   const { colors, gridLayout } = getStoredStyleParams(styleParams, title);
-  
+
   // Color schemes
   const colorSchemes = [
     { bg: 'from-slate-950 via-orange-950 to-slate-900', primary: 'from-orange-400 to-red-500', accent: 'from-orange-500 to-red-600', timeline: 'from-orange-500/20 to-red-500/20', border: 'border-orange-500/30' },
@@ -14,10 +14,10 @@ export default function Timeline({ title, subtitle, bullets, ctaText, icon, styl
     { bg: 'from-slate-950 via-sky-950 to-slate-900', primary: 'from-sky-400 to-blue-500', accent: 'from-sky-500 to-blue-600', timeline: 'from-sky-500/20 to-blue-500/20', border: 'border-sky-500/30' },
     { bg: 'from-slate-950 via-fuchsia-950 to-slate-900', primary: 'from-fuchsia-400 to-purple-500', accent: 'from-fuchsia-500 to-purple-600', timeline: 'from-fuchsia-500/20 to-purple-500/20', border: 'border-fuchsia-500/30' }
   ];
-  
+
   // Use stored colors if available, otherwise fall back to consistent ones
   const finalColors = colors || colorSchemes[0];
-  
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${finalColors.bg} text-white relative overflow-hidden`}>
       {/* Background effects */}
@@ -34,11 +34,11 @@ export default function Timeline({ title, subtitle, bullets, ctaText, icon, styl
             <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
             <span className="text-orange-400 text-sm font-medium">Timeline Layout</span>
           </div>
-          
+
           <h1 className={`text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r ${finalColors.primary} bg-clip-text text-transparent`}>
             {title}
           </h1>
-          
+
           <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
             {subtitle}
           </p>
@@ -48,12 +48,12 @@ export default function Timeline({ title, subtitle, bullets, ctaText, icon, styl
         <div className="relative mb-20">
           {/* Timeline line */}
           <div className={`absolute left-1/2 transform -translate-x-1/2 w-1 h-full ${finalColors.timeline} rounded-full`}></div>
-          
+
           {bullets?.map((bullet, index) => (
             <div key={index} className={`relative mb-16 ${index % 2 === 0 ? 'text-left' : 'text-right'}`}>
               {/* Timeline dot */}
               <div className={`absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gradient-to-r ${finalColors.accent} rounded-full border-4 border-white shadow-lg z-10`}></div>
-              
+
               {/* Content */}
               <div className={`w-5/12 ${index % 2 === 0 ? 'mr-auto' : 'ml-auto'}`}>
                 <div className="group relative">
@@ -76,46 +76,22 @@ export default function Timeline({ title, subtitle, bullets, ctaText, icon, styl
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
             Why Choose Us
           </h2>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="group relative">
-              <div className={`absolute inset-0 ${finalColors.timeline} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
-                <div className={`w-16 h-16 bg-gradient-to-r ${finalColors.accent} rounded-2xl flex items-center justify-center mb-6`}>
-                  <span className="text-white text-2xl">{getFeatureEmoji("Fast & Efficient")}</span>
+            {bullets?.slice(0, 3).map((bullet, index) => (
+              <div key={index} className="group relative">
+                <div className={`absolute inset-0 ${finalColors.timeline} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
+                  <div className={`w-16 h-16 bg-gradient-to-r ${finalColors.accent} rounded-2xl flex items-center justify-center mb-6`}>
+                    <span className="text-white text-2xl">{getFeatureEmoji(bullet)}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-4">{bullet}</h3>
+                  <p className="text-white/70 text-lg leading-relaxed">
+                    {bullet} - a key feature that makes {title} stand out.
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4">Fast & Efficient</h3>
-                <p className="text-white/70 text-lg leading-relaxed">
-                  Lightning-fast performance that keeps you ahead of the competition.
-                </p>
               </div>
-            </div>
-            
-            <div className="group relative">
-              <div className={`absolute inset-0 ${finalColors.timeline} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
-                <div className={`w-16 h-16 bg-gradient-to-r ${finalColors.accent} rounded-2xl flex items-center justify-center mb-6`}>
-                  <span className="text-white text-2xl">{getFeatureEmoji("Secure & Reliable")}</span>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Secure & Reliable</h3>
-                <p className="text-white/70 text-lg leading-relaxed">
-                  Enterprise-grade security that protects your data and privacy.
-                </p>
-              </div>
-            </div>
-            
-            <div className="group relative">
-              <div className={`absolute inset-0 ${finalColors.timeline} rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative rounded-2xl border border-white/20 p-8 bg-white/10 backdrop-blur hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-white/40">
-                <div className={`w-16 h-16 bg-gradient-to-r ${finalColors.accent} rounded-2xl flex items-center justify-center mb-6`}>
-                  <span className="text-white text-2xl">{getFeatureEmoji("Innovative")}</span>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Innovative</h3>
-                <p className="text-white/70 text-lg leading-relaxed">
-                  Cutting-edge technology that pushes the boundaries of what's possible.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 

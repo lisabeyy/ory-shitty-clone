@@ -6,11 +6,11 @@ import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 export default function MinimalDocs({ title, subtitle, bullets, ctaText, icon, styleParams }: BaseProps) {
   // Use stored style parameters or fall back to consistent ones
   const { colors, gridLayout } = getStoredStyleParams(styleParams, title);
-  
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${colors.bg} text-white`}>
       <WebsiteHeader title={title} icon={icon} />
-      
+
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
@@ -37,7 +37,7 @@ export default function MinimalDocs({ title, subtitle, bullets, ctaText, icon, s
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
             Key Features
           </h2>
-          
+
           {/* Use stored grid layout */}
           <div className={`grid ${gridLayout.gridCols} gap-8`}>
             {bullets?.slice(0, gridLayout.maxItems).map((bullet, index) => (

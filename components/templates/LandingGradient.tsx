@@ -6,7 +6,7 @@ import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 export default function LandingGradient({ title, subtitle, bullets, ctaText, icon, styleParams }: BaseProps) {
   // Use stored style parameters or fall back to consistent ones
   const { colors, gridLayout } = getStoredStyleParams(styleParams, title);
-  
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${colors.bg} text-white relative overflow-hidden`}>
       {/* Background effects */}
@@ -23,11 +23,11 @@ export default function LandingGradient({ title, subtitle, bullets, ctaText, ico
             <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
             <span className="text-emerald-400 text-sm font-medium">Gradient Layout</span>
           </div>
-          
+
           <h1 className={`text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r ${colors.primary} bg-clip-text text-transparent`}>
             {title}
           </h1>
-          
+
           <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
             {subtitle}
           </p>
@@ -43,7 +43,7 @@ export default function LandingGradient({ title, subtitle, bullets, ctaText, ico
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
             Key Features
           </h2>
-          
+
           {/* Use stored grid layout */}
           <div className={`grid ${gridLayout.gridCols} gap-8`}>
             {bullets?.slice(0, gridLayout.maxItems).map((bullet, index) => (

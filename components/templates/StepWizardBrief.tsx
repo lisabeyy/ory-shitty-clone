@@ -6,11 +6,11 @@ import { getStoredStyleParams, getFeatureEmoji } from "@/lib/consistentStyles";
 export default function StepWizardBrief({ title, subtitle, steps, highlights, ctaPrimary, disclaimer, icon, styleParams }: StepWizardProps) {
   // Use stored style parameters or fall back to consistent ones
   const { colors, gridLayout } = getStoredStyleParams(styleParams, title);
-  
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${colors.bg} text-white`}>
       <WebsiteHeader title={title} icon={icon} />
-      
+
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-6">
         <div className="max-w-6xl mx-auto text-center">
@@ -37,7 +37,7 @@ export default function StepWizardBrief({ title, subtitle, steps, highlights, ct
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
             How It Works
           </h2>
-          
+
           <div className="space-y-8">
             {steps?.map((step, index) => (
               <div key={index} className="flex items-start space-x-6">
@@ -64,7 +64,7 @@ export default function StepWizardBrief({ title, subtitle, steps, highlights, ct
           <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
             Key Highlights
           </h2>
-          
+
           {/* Use stored grid layout */}
           <div className={`grid ${gridLayout.gridCols} gap-8`}>
             {highlights?.slice(0, gridLayout.maxItems).map((highlight, index) => (
